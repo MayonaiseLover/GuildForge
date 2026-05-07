@@ -1,0 +1,42 @@
+{
+  "name": "@guildforge/mcp-discord",
+  "version": "1.0.0",
+  "description": "A standalone Model Context Protocol (MCP) server for managing Discord servers.",
+  "author": "GuildForge",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guildforge/guildforge.git",
+    "directory": "apps/mcp-discord"
+  },
+  "type": "module",
+  "bin": {
+    "guildforge-mcp-discord": "./dist/server.js"
+  },
+  "main": "./dist/index.js",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/server.ts --format esm --dts --clean",
+    "dev": "tsup src/server.ts --format esm --watch --onSuccess 'node dist/server.js'",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.1",
+    "discord.js": "^14.16.2",
+    "dotenv": "^16.4.5",
+    "zod": "^3.23.8",
+    "zod-to-json-schema": "^3.25.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  }
+}

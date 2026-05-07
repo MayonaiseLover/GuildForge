@@ -1,0 +1,61 @@
+$ vitest run
+
+ RUN  v1.6.1 /home/potato/Downloads/githup/GuildForge/apps/mcp-discord
+
+[?25l · tests/discord-client.test.ts (1)
+[?25l[2K[1A[2K[G ❯ tests/discord-client.test.ts (1)
+   ❯ DiscordClient (1)
+     ⠙ should initialize lazily
+[?25l[2K[1A[2K[1A[2K[1A[2K[G ✓ tests/discord-client.test.ts (1)
+ · tests/ratelimit.test.ts (1)
+[?25l[2K[1A[2K[1A[2K[G ✓ tests/discord-client.test.ts (1)
+ ❯ tests/ratelimit.test.ts (1)
+   ❯ RateLimiter (1)
+     ⠙ should run tasks in order
+[?25l[2K[1A[2K[1A[2K[1A[2K[1A[2K[G ✓ tests/discord-client.test.ts (1)
+ ❯ tests/ratelimit.test.ts (1)
+   ❯ RateLimiter (1)
+     ⠹ should run tasks in order
+[?25l[2K[1A[2K[1A[2K[1A[2K[1A[2K[G ✓ tests/discord-client.test.ts (1)
+ ✓ tests/ratelimit.test.ts (1)
+[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[?25l[2K[1A[2K[1A[2K[G ✓ tests/discord-client.test.ts (1)
+ ✓ tests/ratelimit.test.ts (1)
+ · tests/tools/channels.test.ts (1)
+ · tests/tools/bots.test.ts (1)
+[?25l[2K[1A[2K[1A[2K[1A[2K[1A[2K[G ✓ tests/discord-client.test.ts (1)
+ ✓ tests/ratelimit.test.ts (1)
+ · tests/tools/channels.test.ts (1)
+ ✓ tests/tools/bots.test.ts (1)
+[?25l[2K[1A[2K[1A[2K[1A[2K[1A[2K[G ✓ tests/discord-client.test.ts (1)
+ ✓ tests/ratelimit.test.ts (1)
+ ✓ tests/tools/channels.test.ts (1)
+ ✓ tests/tools/bots.test.ts (1)
+[?25l[?25l[2K[1A[2K[1A[2K[1A[2K[1A[2K[G ✓ tests/discord-client.test.ts (1)
+ ✓ tests/ratelimit.test.ts (1)
+ ✓ tests/tools/channels.test.ts (1)
+ ✓ tests/tools/bots.test.ts (1)
+ · tests/tools/snapshots.test.ts (1)
+[?25l[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[G ✓ tests/discord-client.test.ts (1)
+ ✓ tests/ratelimit.test.ts (1)
+ ✓ tests/tools/channels.test.ts (1)
+ ✓ tests/tools/bots.test.ts (1)
+ ❯ tests/tools/snapshots.test.ts (1)
+   ❯ Snapshot Tools (1)
+     ⠙ should snapshot guild
+[?25l[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[G ✓ tests/discord-client.test.ts (1)
+ ✓ tests/ratelimit.test.ts (1)
+ ✓ tests/tools/channels.test.ts (1)
+ ✓ tests/tools/bots.test.ts (1)
+ ✓ tests/tools/snapshots.test.ts (1)
+[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[G ✓ tests/discord-client.test.ts (1)
+ ✓ tests/ratelimit.test.ts (1)
+ ✓ tests/tools/channels.test.ts (1)
+ ✓ tests/tools/bots.test.ts (1)
+ ✓ tests/tools/snapshots.test.ts (1)
+
+ Test Files  5 passed (5)
+      Tests  5 passed (5)
+   Start at  01:26:21
+   Duration  1.71s (transform 517ms, setup 0ms, collect 3.38s, tests 134ms, environment 4ms, prepare 910ms)
+
+[?25h[?25h

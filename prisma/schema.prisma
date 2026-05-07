@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String   @id @default(cuid())
+  discordId         String   @unique
+  username          String
+  avatar            String?
+  email             String?
+  plan              String   @default("free")     // free | pro | studio
+  createdAt         DateTime @default(now())
+  sessions          Session[]
+  conversations     Conversation[]
+  managedGuilds     ManagedGuild[]
+}
+
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model OAuthAccount {
+  provider     String
+  providerUserId String
+  userId       String
+  accessToken  String
+  refreshToken String?
+  expiresAt    DateTime?
+  @@id([provider, providerUserId])
+}
+
+model ManagedGuild {
+  id              String   @id @default(cuid())
+  discordGuildId  String   @unique
+  ownerUserId     String
+  guildName       String
+  iconUrl         String?
+  botSetupStatus  Json?
+  lastAuditAt     DateTime?
+  createdAt       DateTime @default(now())
+  conversations   Conversation[]
+  buildPlans      BuildPlan[]
+  snapshots       SnapshotRecord[]
+  user            User     @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+}
+
+model Conversation {
+  id        String     @id @default(cuid())
+  userId    String
+  guildId   String
+  createdAt DateTime   @default(now())
+  messages  Message[]
+  buildPlans BuildPlan[]
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  guild     ManagedGuild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id              String   @id @default(cuid())
+  conversationId  String
+  role            String   // user | assistant | tool
+  content         String   @db.Text
+  toolCalls       Json?
+  createdAt       DateTime @default(now())
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+model BuildPlan {
+  id              String   @id @default(cuid())
+  conversationId  String
+  guildId         String
+  planJson        Json
+  status          String   // DRAFT | APPROVED | EXECUTING | COMPLETED | FAILED | ROLLED_BACK
+  createdAt       DateTime @default(now())
+  executedAt      DateTime?
+  operations      Operation[]
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  guild           ManagedGuild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+}
+
+model Operation {
+  id          String   @id @default(cuid())
+  buildPlanId String
+  ord         Int
+  tool        String
+  args        Json
+  result      Json?
+  status      String   // PENDING | OK | FAILED | SKIPPED
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  buildPlan   BuildPlan @relation(fields: [buildPlanId], references: [id], onDelete: Cascade)
+}
+
+model SnapshotRecord {
+  id              String   @id @default(cuid())
+  guildId         String
+  label           String?
+  structureJson   Json
+  createdAt       DateTime @default(now())
+  guild           ManagedGuild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+}

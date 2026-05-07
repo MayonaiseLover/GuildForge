@@ -1,0 +1,28 @@
+$ turbo run typecheck
+• Packages in scope: @guildforge/api, @guildforge/mcp-discord, @guildforge/plan-schema, web
+• Running typecheck in 4 packages
+• Remote caching disabled
+@guildforge/mcp-discord:typecheck: cache miss, executing d8968cdd54bffee2
+@guildforge/mcp-discord:typecheck: $ tsc --noEmit
+@guildforge/mcp-discord:typecheck: src/tools/channels.ts(114,18): error TS18046: 'updated' is of type 'unknown'.
+@guildforge/mcp-discord:typecheck: src/tools/channels.ts(114,36): error TS18046: 'updated' is of type 'unknown'.
+@guildforge/mcp-discord:typecheck: src/tools/channels.ts(126,50): error TS2322: Type 'Promise<CategoryChannel> | Promise<TextChannel> | Promise<VoiceChannel> | Promise<ForumChannel> | ... 6 more ... | Promise<...>' is not assignable to type 'Promise<CategoryChannel>'.
+@guildforge/mcp-discord:typecheck:   Type 'Promise<TextChannel>' is not assignable to type 'Promise<CategoryChannel>'.
+@guildforge/mcp-discord:typecheck:     Property 'children' is missing in type 'TextChannel' but required in type 'CategoryChannel'.
+@guildforge/mcp-discord:typecheck: src/tools/channels.ts(158,19): error TS2339: Property 'position' does not exist on type 'GuildBasedChannel'.
+@guildforge/mcp-discord:typecheck:   Property 'position' does not exist on type 'PublicThreadChannel<boolean>'.
+@guildforge/mcp-discord:typecheck: src/tools/guilds.ts(34,148): error TS2339: Property 'position' does not exist on type 'NewsChannel | StageChannel | TextChannel | PublicThreadChannel<boolean> | PrivateThreadChannel | VoiceChannel | ForumChannel | MediaChannel'.
+@guildforge/mcp-discord:typecheck:   Property 'position' does not exist on type 'PublicThreadChannel<boolean>'.
+@guildforge/mcp-discord:typecheck: src/tools/snapshots.ts(31,21): error TS2339: Property 'position' does not exist on type 'GuildBasedChannel'.
+@guildforge/mcp-discord:typecheck:   Property 'position' does not exist on type 'PublicThreadChannel<boolean>'.
+@guildforge/mcp-discord:typecheck: [ELIFECYCLE] Command failed with exit code 2.
+@guildforge/mcp-discord:typecheck: ERROR: command finished with error: command (/home/potato/Downloads/githup/GuildForge/apps/mcp-discord) /home/potato/.npm-global/bin/pnpm run typecheck exited (2)
+@guildforge/mcp-discord#typecheck: command (/home/potato/Downloads/githup/GuildForge/apps/mcp-discord) /home/potato/.npm-global/bin/pnpm run typecheck exited (2)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    2.459s 
+Failed:    @guildforge/mcp-discord#typecheck
+
+ ERROR  run failed: command  exited (2)
+[ELIFECYCLE] Command failed with exit code 2.
