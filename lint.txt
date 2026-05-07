@@ -1,0 +1,39 @@
+• Packages in scope: web
+• Running lint in 1 packages
+• Remote caching disabled
+web:lint: cache miss, executing 1bd0fbe4874bce1f
+web:lint: $ eslint
+web:lint: 
+web:lint: /home/potato/Downloads/githup/GuildForge/apps/web/src/app/dashboard/[guildId]/plan/[conversationId]/page.tsx
+web:lint:   10:3  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+web:lint: 
+web:lint: /home/potato/Downloads/githup/GuildForge/apps/web/src/app/page.tsx
+web:lint:   124:31  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+web:lint: 
+web:lint: /home/potato/Downloads/githup/GuildForge/apps/web/src/components/form-wizard/FormWizard.tsx
+web:lint:   44:26  warning  Compilation Skipped: Use of incompatible library
+web:lint: 
+web:lint: This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+web:lint: 
+web:lint: /home/potato/Downloads/githup/GuildForge/apps/web/src/components/form-wizard/FormWizard.tsx:44:26
+web:lint:   42 |   // Save to localStorage on change
+web:lint:   43 |   useEffect(() => {
+web:lint: > 44 |     const subscription = methods.watch((value) => {
+web:lint:      |                          ^^^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+web:lint:   45 |       localStorage.setItem(storageKey, JSON.stringify(value));
+web:lint:   46 |     });
+web:lint:   47 |     return () => subscription.unsubscribe();  react-hooks/incompatible-library
+web:lint: 
+web:lint: ✖ 3 problems (1 error, 2 warnings)
+web:lint:   0 errors and 1 warning potentially fixable with the `--fix` option.
+web:lint: 
+web:lint: [ELIFECYCLE] Command failed with exit code 1.
+web:lint: ERROR: command finished with error: command (/home/potato/Downloads/githup/GuildForge/apps/web) /home/potato/.npm-global/bin/pnpm run lint exited (1)
+web#lint: command (/home/potato/Downloads/githup/GuildForge/apps/web) /home/potato/.npm-global/bin/pnpm run lint exited (1)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    2.789s 
+Failed:    web#lint
+
+ ERROR  run failed: command  exited (1)
