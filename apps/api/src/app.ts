@@ -47,5 +47,17 @@ export async function buildApp() {
   app.register((await import("./routes/templates")).default, { prefix: "/templates" });
   app.register((await import("./routes/analytics")).default, { prefix: "/analytics" });
 
+  // Phase 10: Stripe Billing
+  app.register((await import("./routes/billing")).default, { prefix: "/billing" });
+
+  // Phase 11: Team Workspaces
+  app.register((await import("./routes/teams")).default, { prefix: "/teams" });
+
+  // Phase 12: Server Health Monitoring & Alerts
+  app.register((await import("./routes/monitoring")).default, { prefix: "/monitoring" });
+
+  // Multi-LLM Provider Management
+  app.register((await import("./routes/providers")).default, { prefix: "/providers" });
+
   return app;
 }

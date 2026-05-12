@@ -1,0 +1,13 @@
+{
+  "name": "@guildforge/shared-types",
+  "private": true,
+  "version": "0.0.1",
+  "main": "src/bot-catalog.ts",
+  "types": "src/bot-catalog.ts",
+  "scripts": {
+    "build": "echo 'no build needed'",
+    "lint": "echo 'no linter configured'",
+    "typecheck": "echo 'no typecheck configured'",
+    "test": "echo 'no tests configured'"
+  }
+}

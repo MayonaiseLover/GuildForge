@@ -1,0 +1,11 @@
+{
+  "name": "@guildforge/ui",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "build": "echo 'no build needed'",
+    "lint": "echo 'no linter configured'",
+    "typecheck": "echo 'no typecheck configured'",
+    "test": "echo 'no tests configured'"
+  }
+}
