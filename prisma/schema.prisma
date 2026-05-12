@@ -21,6 +21,10 @@ model User {
   templates         ServerTemplate[]
   templateStars     Templatestar[]
   buildEvents       BuildEvent[]
+  subscription      Subscription?
+  ownedTeams        Team[]       @relation("TeamOwner")
+  teamMemberships   TeamMember[]
+  alertRules        AlertRule[]
 }
 
 model Session {
@@ -158,3 +162,156 @@ model BuildEvent {
   @@index([userId, eventType])
   @@index([createdAt])
 }
+
+// ── Phase 10: Stripe Billing ──────────────────────────────────────────────────
+
+model Subscription {
+  id                    String    @id @default(cuid())
+  userId                String    @unique
+  stripeCustomerId      String    @unique
+  stripeSubscriptionId  String?   @unique
+  stripePriceId         String?
+  plan                  String    @default("free")   // free | pro | studio
+  status                String    @default("active") // active | canceled | past_due | trialing | paused
+  currentPeriodStart    DateTime?
+  currentPeriodEnd      DateTime?
+  cancelAtPeriodEnd     Boolean   @default(false)
+  trialEnd              DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([stripeCustomerId])
+  @@index([status])
+}
+
+model PaymentEvent {
+  id                    String   @id @default(cuid())
+  stripeEventId         String   @unique
+  eventType             String   // checkout.session.completed | invoice.paid | customer.subscription.updated | etc.
+  userId                String?
+  amount                Int?     // cents
+  currency              String?  @default("usd")
+  metadata              Json?
+  createdAt             DateTime @default(now())
+
+  @@index([userId])
+  @@index([eventType])
+}
+
+// ── Phase 11: Team Workspaces ─────────────────────────────────────────────────
+
+model Team {
+  id           String       @id @default(cuid())
+  name         String
+  slug         String       @unique
+  avatarUrl    String?
+  ownerId      String
+  plan         String       @default("free")
+  maxMembers   Int          @default(5)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  owner        User         @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members      TeamMember[]
+  invites      TeamInvite[]
+  guilds       TeamGuild[]
+
+  @@index([ownerId])
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  teamId    String
+  userId    String
+  role      String   @default("member") // owner | admin | member | viewer
+  joinedAt  DateTime @default(now())
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([userId])
+}
+
+model TeamInvite {
+  id        String   @id @default(cuid())
+  teamId    String
+  email     String
+  role      String   @default("member")
+  token     String   @unique @default(cuid())
+  expiresAt DateTime
+  accepted  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([email])
+}
+
+model TeamGuild {
+  id       String @id @default(cuid())
+  teamId   String
+  guildId  String
+  addedAt  DateTime @default(now())
+  team     Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, guildId])
+}
+
+// ── Phase 12: Server Health Monitoring & Alerts ───────────────────────────────
+
+model HealthCheck {
+  id              String   @id @default(cuid())
+  guildId         String
+  status          String   // HEALTHY | DEGRADED | CRITICAL | UNKNOWN
+  memberCount     Int?
+  channelCount    Int?
+  roleCount       Int?
+  boostLevel      Int?
+  onlineCount     Int?
+  messageVolume   Int?     // messages in last 24h (estimated)
+  issues          Json?    // array of { severity, code, message }
+  checkedAt       DateTime @default(now())
+
+  @@index([guildId, checkedAt])
+  @@index([status])
+}
+
+model AlertRule {
+  id            String   @id @default(cuid())
+  userId        String
+  guildId       String?
+  name          String
+  condition     String   // member_drop | channel_inactive | role_unused | boost_lost | permission_drift
+  threshold     Json     // { value: number, unit: string, period: string }
+  channels      String[] @default([]) // notification channels: "email" | "discord" | "webhook"
+  webhookUrl    String?
+  isActive      Boolean  @default(true)
+  lastTriggered DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alerts        Alert[]
+
+  @@index([userId, isActive])
+  @@index([guildId])
+}
+
+model Alert {
+  id          String    @id @default(cuid())
+  ruleId      String
+  guildId     String
+  severity    String    // info | warning | critical
+  title       String
+  message     String    @db.Text
+  metadata    Json?
+  acknowledged Boolean  @default(false)
+  acknowledgedAt DateTime?
+  acknowledgedBy String?
+  createdAt   DateTime  @default(now())
+  rule        AlertRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@index([guildId, acknowledged])
+  @@index([severity])
+  @@index([createdAt])
+}
+

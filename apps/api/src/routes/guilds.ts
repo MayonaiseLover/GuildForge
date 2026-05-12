@@ -142,8 +142,8 @@ export default async function (app: FastifyInstance) {
 
     const structure = (result.content[0] as any).text;
 
-    const { AnthropicProvider } = await import("../services/llm");
-    const provider = new AnthropicProvider();
+    const { getProvider } = await import("../services/llm");
+    const provider = getProvider();
     
     const { z } = await import("zod");
     const recommendationsSchema = z.object({

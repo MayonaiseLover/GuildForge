@@ -9,7 +9,7 @@
   <a href="https://github.com/MayonaiseLover/GuildForge/actions/workflows/ci.yml"><img src="https://github.com/MayonaiseLover/GuildForge/actions/workflows/ci.yml/badge.svg?branch=master" alt="CI" /></a>
   <a href="https://github.com/MayonaiseLover/GuildForge/blob/master/LICENSE"><img src="https://img.shields.io/github/license/MayonaiseLover/GuildForge?color=6366f1&label=License" alt="License" /></a>
   <a href="https://github.com/MayonaiseLover/GuildForge/stargazers"><img src="https://img.shields.io/github/stars/MayonaiseLover/GuildForge?style=flat&color=8b5cf6&label=Stars" alt="Stars" /></a>
-  <a href="https://github.com/MayonaiseLover/GuildForge"><img src="https://img.shields.io/github/repo-size/MayonaiseLover/GuildForge?color=6366f1&label=Size" alt="Repo Size" /></a>
+  <a href="https://github.com/MayonaiseLover/GuildForge"><img src="https://img.shields.io/github/languages/code-size/MayonaiseLover/GuildForge?color=6366f1&label=Code%20Size" alt="Code Size" /></a>
   <a href="https://github.com/MayonaiseLover/GuildForge/commits/master"><img src="https://img.shields.io/github/last-commit/MayonaiseLover/GuildForge?color=8b5cf6&label=Last%20Commit" alt="Last Commit" /></a>
 
   <br /><br />
@@ -89,21 +89,28 @@ Snapshot your entire server state before changes — one-click revert if anythin
                            │ REST + SSE
 ┌──────────────────────────┴──────────────────────────────────┐
 │  API (Fastify)                                              │
-│  OAuth → Agent (Claude) → Plan → Validate → Execute         │
-│  Analytics · Templates · Snapshots · Conversations          │
+│  OAuth → LLM Engine → Plan → Validate → Execute            │
+│  Teams · Billing · Monitoring · Templates · Conversations   │
 └──────────────────────────┬──────────────────────────────────┘
                            │ Model Context Protocol
 ┌──────────────────────────┴──────────────────────────────────┐
 │  MCP Server (@guildforge/mcp-discord)                       │
 │  20+ tools: channels, roles, forums, automod, webhooks,     │
 │  embeds, snapshots, bot panels, templates                   │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+┌──────────────────────────┴──────────────────────────────────┐
+│  Multi-LLM Provider Registry                                │
+│  Anthropic · OpenAI · Gemini · Groq · Grok · DeepSeek       │
+│  Hot-swap providers via env config — zero code changes       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 | Layer | Tech | Purpose |
 |-------|------|---------|
-| **Frontend** | Next.js 14, React 18, Framer Motion | Dashboard, Preview Tree, real-time deploy status |
-| **API** | Fastify, Prisma, PostgreSQL, Lucia Auth | Session management, agent orchestration, SSE streaming |
+| **Frontend** | Next.js 16, React 19, Framer Motion, Tailwind CSS | Dashboard, Preview Tree, real-time deploy, billing, monitoring |
+| **API** | Fastify, Prisma, PostgreSQL, Lucia Auth | Agent orchestration, SSE streaming, teams, health monitoring |
+| **LLM Engine** | Anthropic, OpenAI, Gemini, Groq, Grok, DeepSeek | Multi-provider registry with structured output + tool calling |
 | **MCP Server** | discord.js 14, Zod, MCP SDK | Standalone Discord API as LLM-callable tools |
 | **Shared** | Turborepo, pnpm workspaces, Vitest | Monorepo orchestration, shared schemas, testing |
 
@@ -152,7 +159,13 @@ npx @guildforge/mcp-discord
 | pnpm | 9+ |
 | PostgreSQL | 16+ (or Docker) |
 | [Discord Bot Token](https://discord.com/developers/applications) | with server members intent |
-| [Anthropic API Key](https://console.anthropic.com/) | Claude access |
+| `ANTHROPIC_API_KEY` | ⚡ | Anthropic Claude (default provider) |
+| `OPENAI_API_KEY` | | OpenAI GPT-4o |
+| `GEMINI_API_KEY` | | Google Gemini |
+| `GROQ_API_KEY` | | Groq (ultra-fast inference) |
+| `GROK_API_KEY` | | xAI Grok |
+| `DEEPSEEK_API_KEY` | | DeepSeek |
+| `LLM_PROVIDER` | | Default provider: `anthropic` \| `openai` \| `gemini` \| `groq` \| `grok` \| `deepseek` |
 
 ### Installation
 
@@ -247,9 +260,10 @@ GuildForge/
 - [x] **Phase 7** — Enterprise Features (forums, AutoMod, webhooks, embeds)
 - [x] **Phase 8** — Community Template Gallery
 - [x] **Phase 9** — Server Analytics Dashboard
-- [ ] **Phase 10** — Stripe Billing Integration
-- [ ] **Phase 11** — Team Workspaces & Collaboration
-- [ ] **Phase 12** — Server Health Monitoring & Alerts
+- [ ] **Phase 10** — Stripe Billing Integration (planned)
+- [x] **Phase 11** — Team Workspaces & Collaboration
+- [x] **Phase 12** — Server Health Monitoring & Alerts
+- [x] **Multi-LLM** — Provider Registry (6 providers, hot-swap)
 
 <br />
 
@@ -287,5 +301,7 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 <div align="center">
   <sub>Built with ⚔️ by <a href="https://github.com/MayonaiseLover">MayonaiseLover</a></sub>
   <br />
-  <sub>Powered by Claude · Discord.js · Next.js · Fastify</sub>
+  <sub>Powered by Claude · GPT-4o · Gemini · Groq · Discord.js · Next.js · Fastify</sub>
+  <br /><br />
+  <a href="CODE_OF_CONDUCT.md">Code of Conduct</a> · <a href="SECURITY.md">Security</a> · <a href="ACKNOWLEDGMENTS.md">Acknowledgments</a>
 </div>

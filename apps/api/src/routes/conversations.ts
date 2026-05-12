@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { AnthropicProvider } from "../services/llm";
+import { getProvider } from "../services/llm";
 import { PLAN_GENERATOR_SYSTEM_PROMPT } from "../services/agent/prompts";
 import { validatePlan } from "../services/agent/validate";
 import { BuildPlanSchema } from "@guildforge/plan-schema";
@@ -60,7 +60,7 @@ export async function conversationRoutes(app: FastifyInstance) {
       return reply.status(404).send({ error: "Conversation not found" });
     }
 
-    const provider = new AnthropicProvider();
+    const provider = getProvider();
     const userPrompt = `Brief: ${JSON.stringify(brief || {})}\nDescription: ${freeformDescription || ""}`;
 
     try {
@@ -203,7 +203,7 @@ export async function conversationRoutes(app: FastifyInstance) {
       take: 20
     });
 
-    const provider = new AnthropicProvider();
+    const provider = getProvider();
     
     // We import PlanChangeSchema JSON schema representation
     const { zodToJsonSchema } = await import("zod-to-json-schema");
