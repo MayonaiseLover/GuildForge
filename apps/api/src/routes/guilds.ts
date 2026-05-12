@@ -1,7 +1,60 @@
 import { FastifyInstance } from "fastify";
 import { env } from "../env";
+import { discordAuth } from "../services/discord-oauth";
+import { decryptToken, encryptToken } from "../services/crypto";
 
 const MANAGE_GUILD = 0x20;
+
+async function fetchWithTokenRefresh(
+  app: FastifyInstance,
+  userId: string,
+  url: string
+): Promise<any[]> {
+  const account = await app.prisma.oAuthAccount.findFirst({
+    where: { userId, provider: "discord" }
+  });
+  if (!account) throw new Error("No discord account linked");
+
+  const attempt = await fetch(url, {
+    headers: { Authorization: `Bearer ${decryptToken(account.accessToken)}` }
+  });
+
+  if (attempt.ok) return attempt.json();
+
+  // Token expired — attempt refresh
+  if (attempt.status === 401 && account.refreshToken) {
+    try {
+      const refreshed = await discordAuth.refreshAccessToken(decryptToken(account.refreshToken));
+      const newAccessToken = refreshed.accessToken;
+      const newRefreshToken = refreshed.refreshToken ?? account.refreshToken;
+      const newExpiry = refreshed.accessTokenExpiresAt ?? null;
+
+      await app.prisma.oAuthAccount.update({
+        where: {
+          provider_providerUserId: {
+            provider: account.provider,
+            providerUserId: account.providerUserId
+          }
+        },
+        data: {
+          accessToken: encryptToken(newAccessToken),
+          refreshToken: newRefreshToken ? encryptToken(newRefreshToken) : account.refreshToken,
+          expiresAt: newExpiry
+        }
+      });
+
+      const retry = await fetch(url, {
+        headers: { Authorization: `Bearer ${newAccessToken}` }
+      });
+      if (!retry.ok) throw new Error("Failed to fetch after token refresh");
+      return retry.json();
+    } catch (refreshErr) {
+      throw new Error("Session expired — please log in again");
+    }
+  }
+
+  throw new Error("Failed to fetch Discord data");
+}
 
 export default async function (app: FastifyInstance) {
   app.addHook("preHandler", async (req, reply) => {
@@ -16,30 +69,24 @@ export default async function (app: FastifyInstance) {
     req.session = session;
   });
 
-  app.get("/", async (req) => {
-    const account = await app.prisma.oAuthAccount.findFirst({
-      where: { userId: req.user!.id, provider: "discord" }
-    });
-    if (!account) throw new Error("No discord account linked");
-
-    const res = await fetch("https://discord.com/api/v10/users/@me/guilds", {
-      headers: { Authorization: `Bearer ${account.accessToken}` }
-    });
-    
-    if (!res.ok) {
-      if (res.status === 401) {
-        throw new Error("Token expired");
-      }
-      throw new Error("Failed to fetch guilds");
+  app.get("/", async (req, reply) => {
+    let guilds: any[];
+    try {
+      guilds = await fetchWithTokenRefresh(
+        app,
+        req.user!.id,
+        "https://discord.com/api/v10/users/@me/guilds"
+      );
+    } catch (e: any) {
+      return reply.status(401).send({ error: e.message });
     }
 
-    const guilds = await res.json() as any[];
     const managed = guilds.filter(g => (Number(g.permissions) & MANAGE_GUILD) === MANAGE_GUILD);
 
     const botRes = await fetch("https://discord.com/api/v10/users/@me/guilds", {
       headers: { Authorization: `Bot ${env.DISCORD_BOT_TOKEN}` }
     });
-    let botGuilds = new Set();
+    let botGuilds = new Set<string>();
     if (botRes.ok) {
       const bGuilds = await botRes.json() as any[];
       botGuilds = new Set(bGuilds.map(g => g.id));
@@ -53,6 +100,7 @@ export default async function (app: FastifyInstance) {
       inviteUrlIfMissing: botGuilds.has(g.id) ? null : `https://discord.com/oauth2/authorize?client_id=${env.DISCORD_CLIENT_ID}&permissions=8&scope=bot%20applications.commands&guild_id=${g.id}&disable_guild_select=true`
     }));
   });
+
 
   app.post("/:id/connect", async (req) => {
     const { id } = req.params as { id: string };

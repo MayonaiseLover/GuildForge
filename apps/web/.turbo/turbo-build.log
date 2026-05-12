@@ -1,29 +1,0 @@
-$ next build
-⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
- We detected multiple lockfiles and selected the directory of /home/potato/Downloads/githup/GuildForge/pnpm-workspace.yaml as the root directory.
- To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
-   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
- Detected additional lockfiles: 
-   * /home/potato/Downloads/githup/GuildForge/apps/web/pnpm-workspace.yaml
-
-▲ Next.js 16.2.6 (Turbopack)
-
-  Creating an optimized production build ...
-✓ Compiled successfully in 2.8s
-  Finished TypeScript in 2.9s    ✓ Finished TypeScript in 2.9s 
-  Collecting page data using 9 workers in 424ms    ✓ Collecting page data using 9 workers in 424ms 
-✓ Generating static pages using 9 workers (6/6) in 392ms
-  Finalizing page optimization in 13ms    ✓ Finalizing page optimization in 13ms 
-
-Route (app)
-┌ ○ /
-├ ○ /_not-found
-├ ○ /dashboard
-├ ƒ /dashboard/[guildId]/onboarding
-├ ƒ /dashboard/[guildId]/plan/[conversationId]
-└ ○ /login
-
-
-○  (Static)   prerendered as static content
-ƒ  (Dynamic)  server-rendered on demand
-

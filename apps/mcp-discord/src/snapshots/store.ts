@@ -62,4 +62,24 @@ export class SnapshotStore {
       throw err;
     }
   }
+
+  /** Search all guild subdirectories for a snapshot by its ID */
+  async findById(snapshotId: string): Promise<{ snapshotId: string; guildId: string; createdAt: string; label?: string; data: any } | null> {
+    try {
+      const guilds = await fs.readdir(this.baseDir);
+      for (const guildId of guilds) {
+        const filePath = path.join(this.baseDir, guildId, `${snapshotId}.json`);
+        try {
+          const content = await fs.readFile(filePath, "utf-8");
+          return JSON.parse(content);
+        } catch {
+          // Not in this guild dir, keep searching
+        }
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
 }

@@ -74,3 +74,7 @@ export const CreateSelfAssignableRolesInput = z.object({
     emoji: z.string().optional()
   }))
 });
+
+export const ExportGuildInput = z.object({
+  guildId: z.string()
+});

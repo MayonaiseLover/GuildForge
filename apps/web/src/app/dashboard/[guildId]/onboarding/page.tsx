@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { FormWizard } from "../../../../components/form-wizard/FormWizard";
 import { BuildBrief, briefToPrompt } from "@guildforge/plan-schema";
 
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
 export default function OnboardingPage({ params }: { params: Promise<{ guildId: string }> }) {
   const { guildId } = use(params);
   const router = useRouter();
@@ -19,8 +21,9 @@ export default function OnboardingPage({ params }: { params: Promise<{ guildId: 
     setError(null);
     try {
       // 1. Create a conversation
-      const convRes = await fetch("http://localhost:3001/conversations", {
+      const convRes = await fetch(`${API}/conversations`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ guildId })
       });
@@ -29,8 +32,9 @@ export default function OnboardingPage({ params }: { params: Promise<{ guildId: 
 
       // 2. Generate plan
       const promptText = brief ? briefToPrompt(brief) : freeform;
-      const planRes = await fetch(`http://localhost:3001/conversations/${conversation.id}/plan`, {
+      const planRes = await fetch(`${API}/conversations/${conversation.id}/plan`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ freeformDescription: promptText })
       });

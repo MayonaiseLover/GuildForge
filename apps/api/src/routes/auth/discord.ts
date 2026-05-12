@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import { generateState } from "arctic";
 import { discordAuth } from "../../services/discord-oauth";
 import { env } from "../../env";
+import { encryptToken } from "../../services/crypto";
 
 export default async function (app: FastifyInstance) {
   app.get("/login", async (req, reply) => {
@@ -55,16 +56,16 @@ export default async function (app: FastifyInstance) {
       await app.prisma.oAuthAccount.upsert({
         where: { provider_providerUserId: { provider: "discord", providerUserId: discordUser.id } },
         update: {
-          accessToken: tokens.accessToken,
-          refreshToken: tokens.refreshToken,
+          accessToken: encryptToken(tokens.accessToken),
+          refreshToken: tokens.refreshToken ? encryptToken(tokens.refreshToken) : null,
           expiresAt: tokens.accessTokenExpiresAt
         },
         create: {
           provider: "discord",
           providerUserId: discordUser.id,
           userId: user.id,
-          accessToken: tokens.accessToken,
-          refreshToken: tokens.refreshToken,
+          accessToken: encryptToken(tokens.accessToken),
+          refreshToken: tokens.refreshToken ? encryptToken(tokens.refreshToken) : null,
           expiresAt: tokens.accessTokenExpiresAt
         }
       });

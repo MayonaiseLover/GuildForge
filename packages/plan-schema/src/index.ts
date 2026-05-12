@@ -37,79 +37,178 @@ export function briefToPrompt(brief: BuildBrief): string {
   return parts.join(" ");
 }
 
+// ── Forum Tag Schema ──
+export const ForumTagSchema = z.object({
+  name: z.string(),
+  emoji: z.string().optional(),
+  moderated: z.boolean().optional(),
+});
+
+// ── Forum Configuration ──
+export const ForumConfigSchema = z.object({
+  tags: z.array(ForumTagSchema).optional(),
+  guidelines: z.string().optional(),
+  defaultSortOrder: z.enum(["latest_activity", "creation_date"]).optional(),
+  layout: z.enum(["list", "gallery"]).optional(),
+  defaultReactionEmoji: z.string().optional(),
+  autoArchiveDuration: z.number().int().optional(),
+});
+
+// ── Embed Schema ──
+export const EmbedContentSchema = z.object({
+  targetChannelKey: z.string(),
+  title: z.string(),
+  description: z.string(),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  footer: z.string().optional(),
+  reactions: z.array(z.string()).optional(),
+});
+
+// ── AutoMod Rule Schema ──
+export const AutoModRuleSchema = z.object({
+  name: z.string(),
+  type: z.enum(["keyword", "spam", "mention_spam", "keyword_preset"]),
+  keywords: z.array(z.string()).optional(),
+  regexPatterns: z.array(z.string()).optional(),
+  presets: z.array(z.enum(["profanity", "sexual_content", "slurs"])).optional(),
+  mentionLimit: z.number().int().optional(),
+  actions: z.array(z.enum(["block", "alert", "timeout"])),
+  alertChannelKey: z.string().optional(),
+  timeoutDurationSeconds: z.number().int().optional(),
+  enabled: z.boolean().optional(),
+});
+
+// ── Webhook Schema ──
+export const WebhookSchema = z.object({
+  name: z.string(),
+  targetChannelKey: z.string(),
+  purpose: z.string(),
+});
+
+// ── Forum Seed Post Schema ──
+export const ForumSeedPostSchema = z.object({
+  forumChannelKey: z.string(),
+  title: z.string(),
+  content: z.string(),
+  tagName: z.string().optional(),
+});
+
+// ── Branding Schema ──
+export const BrandingSchema = z.object({
+  primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  tone: z.enum(["formal", "friendly", "playful", "edgy", "hype"]),
+  iconUrl: z.string().url().optional(),
+  bannerUrl: z.string().url().optional(),
+});
+
+// ── Channel Schema (expanded with forum support) ──
+export const ChannelSchema = z.object({
+  key: z.string(),
+  name: z.string(),
+  type: z.enum(["text", "voice", "announcement", "forum", "stage"]),
+  topic: z.string().optional(),
+  slowmodeSeconds: z.number().int().optional(),
+  nsfw: z.boolean().optional(),
+  userLimit: z.number().int().optional(),
+  bitrate: z.number().int().optional(),
+  permissionOverwrites: z.array(z.object({
+    roleKey: z.string(),
+    allow: z.array(z.string()),
+    deny: z.array(z.string()),
+  })).optional(),
+  purpose: z.string(),
+  forumConfig: ForumConfigSchema.optional(),
+});
+
+// ── Category Schema ──
+export const CategorySchema = z.object({
+  key: z.string(),
+  name: z.string(),
+  permissionOverwrites: z.array(z.object({
+    roleKey: z.string(),
+    allow: z.array(z.string()),
+    deny: z.array(z.string()),
+  })),
+  channels: z.array(ChannelSchema),
+});
+
+// ── Role Schema ──
+export const RoleSchema = z.object({
+  key: z.string(),
+  name: z.string(),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  hoist: z.boolean(),
+  mentionable: z.boolean(),
+  permissions: z.array(z.string()),
+  purpose: z.string(),
+});
+
+// ── Post Build Action Schema ──
+export const PostBuildActionSchema = z.object({
+  type: z.enum([
+    "welcome_message", "welcome_banner", "rules_post", "ticket_panel",
+    "verification_gate", "self_role_message", "bot_invite_panel",
+    "announcement_post",
+  ]),
+  params: z.record(z.unknown()),
+});
+
+// ── Main BuildPlan Schema ──
 export const BuildPlanSchema = z.object({
   version: z.literal(1),
   serverName: z.string(),
   description: z.string(),
-  brand: z.object({
-    primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/),
-    tone: z.enum(["formal", "friendly", "playful", "edgy", "hype"]),
-  }),
+  brand: BrandingSchema,
   serverSettings: z.object({
     verificationLevel: z.enum(["none", "low", "medium", "high", "very_high"]),
     defaultNotifications: z.enum(["all", "mentions"]),
     contentFilter: z.enum(["disabled", "no_role", "all"]),
   }),
-  roles: z.array(z.object({
-    key: z.string(),               // stable identifier inside the plan, NOT a discord id
-    name: z.string(),
-    color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
-    hoist: z.boolean(),
-    mentionable: z.boolean(),
-    permissions: z.array(z.string()),
-    purpose: z.string(),           // human-readable rationale
-  })),
-  categories: z.array(z.object({
-    key: z.string(),
-    name: z.string(),
-    permissionOverwrites: z.array(z.object({
-      roleKey: z.string(),
-      allow: z.array(z.string()),
-      deny: z.array(z.string()),
-    })),
-    channels: z.array(z.object({
-      key: z.string(),
-      name: z.string(),
-      type: z.enum(["text", "voice", "announcement", "forum", "stage"]),
-      topic: z.string().optional(),
-      slowmodeSeconds: z.number().int().optional(),
-      nsfw: z.boolean().optional(),
-      userLimit: z.number().int().optional(),
-      bitrate: z.number().int().optional(),
-      permissionOverwrites: z.array(z.object({
-        roleKey: z.string(),
-        allow: z.array(z.string()),
-        deny: z.array(z.string()),
-      })).optional(),
-      purpose: z.string(),
-    })),
-  })),
+  roles: z.array(RoleSchema),
+  categories: z.array(CategorySchema),
   bots: z.array(z.object({
     botId: z.string(),
     why: z.string(),
     setupSteps: z.array(z.string()),
   })),
-  postBuildActions: z.array(z.object({
-    type: z.enum(["welcome_message", "rules_post", "ticket_panel", "verification_gate", "self_role_message"]),
-    params: z.record(z.unknown()),
-  })),
+  postBuildActions: z.array(PostBuildActionSchema),
+  // ── New enterprise features ──
+  autoModRules: z.array(AutoModRuleSchema).optional(),
+  webhooks: z.array(WebhookSchema).optional(),
+  embeds: z.array(EmbedContentSchema).optional(),
+  forumSeedPosts: z.array(ForumSeedPostSchema).optional(),
 });
 
 export type BuildPlan = z.infer<typeof BuildPlanSchema>;
 
 export const PlanChangeSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("delete_channel"), channelKey: z.string() }),
-  z.object({ kind: z.literal("add_channel"), category: z.string(), channel: BuildPlanSchema.shape.categories.element.shape.channels.element }),
+  z.object({ kind: z.literal("add_channel"), category: z.string(), channel: ChannelSchema }),
   z.object({ kind: z.literal("modify_channel"), channelKey: z.string(), changes: z.record(z.unknown()) }),
   z.object({ kind: z.literal("delete_role"), roleKey: z.string() }),
-  z.object({ kind: z.literal("add_role"), role: BuildPlanSchema.shape.roles.element }),
+  z.object({ kind: z.literal("add_role"), role: RoleSchema }),
   z.object({ kind: z.literal("modify_role"), roleKey: z.string(), changes: z.record(z.unknown()) }),
   z.object({ kind: z.literal("delete_category"), categoryKey: z.string() }),
-  z.object({ kind: z.literal("add_category"), category: BuildPlanSchema.shape.categories.element }),
+  z.object({ kind: z.literal("add_category"), category: CategorySchema }),
   z.object({ kind: z.literal("modify_server_settings"), changes: z.record(z.unknown()) }),
-  z.object({ kind: z.literal("add_post_build_action"), action: BuildPlanSchema.shape.postBuildActions.element }),
-  z.object({ kind: z.literal("full_rebuild"), plan: BuildPlanSchema })
+  z.object({ kind: z.literal("add_post_build_action"), action: PostBuildActionSchema }),
+  z.object({ kind: z.literal("add_automod_rule"), rule: AutoModRuleSchema }),
+  z.object({ kind: z.literal("add_webhook"), webhook: WebhookSchema }),
+  z.object({ kind: z.literal("add_embed"), embed: EmbedContentSchema }),
+  z.object({ kind: z.literal("add_forum_seed"), seed: ForumSeedPostSchema }),
+  z.object({ kind: z.literal("full_rebuild"), plan: z.lazy(() => BuildPlanSchema) }),
 ]);
 
 export type PlanChange = z.infer<typeof PlanChangeSchema>;
 
+// Re-export individual types
+export type ForumTag = z.infer<typeof ForumTagSchema>;
+export type ForumConfig = z.infer<typeof ForumConfigSchema>;
+export type EmbedContent = z.infer<typeof EmbedContentSchema>;
+export type AutoModRule = z.infer<typeof AutoModRuleSchema>;
+export type Webhook = z.infer<typeof WebhookSchema>;
+export type ForumSeedPost = z.infer<typeof ForumSeedPostSchema>;
+export type Branding = z.infer<typeof BrandingSchema>;
+export type Channel = z.infer<typeof ChannelSchema>;
+export type Category = z.infer<typeof CategorySchema>;
+export type Role = z.infer<typeof RoleSchema>;

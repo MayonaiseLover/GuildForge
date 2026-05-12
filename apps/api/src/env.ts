@@ -6,7 +6,6 @@ dotenv.config({ path: path.resolve(process.cwd(), "../../.env") });
 
 const envSchema = z.object({
   DATABASE_URL: z.string(),
-  REDIS_URL: z.string().optional(),
   DISCORD_CLIENT_ID: z.string(),
   DISCORD_CLIENT_SECRET: z.string(),
   DISCORD_BOT_TOKEN: z.string(),

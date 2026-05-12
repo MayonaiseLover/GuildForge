@@ -6,25 +6,49 @@ import { validatePlan } from "../services/agent/validate";
 import { BuildPlanSchema } from "@guildforge/plan-schema";
 
 export async function conversationRoutes(app: FastifyInstance) {
-  // Normally add preHandler for Auth here
+  // Auth guard for all conversation routes
+  app.addHook("preHandler", async (req, reply) => {
+    const sessionId = req.cookies[app.lucia.sessionCookieName];
+    if (!sessionId) return reply.status(401).send({ error: "Unauthorized" });
+    const { session, user } = await app.lucia.validateSession(sessionId);
+    if (!session) {
+      reply.clearCookie(app.lucia.sessionCookieName);
+      return reply.status(401).send({ error: "Unauthorized" });
+    }
+    req.user = user;
+    req.session = session;
+  });
 
   app.post("/", async (req, reply) => {
-    const { guildId, brief, freeformDescription } = req.body as any;
-    
-    // Auth bypass for testing purposes if user is not attached
-    const userId = req.user?.id || "mock_user_id"; 
-    
+    const { guildId } = req.body as any;
+    const userId = req.user!.id;
+
     const conversation = await app.prisma.conversation.create({
+      data: { userId, guildId }
+    });
+
+    // Insert initial AI greeting so the chat doesn't start blank
+    await app.prisma.message.create({
       data: {
-        userId,
-        guildId
+        conversationId: conversation.id,
+        role: "assistant",
+        content: "👋 Hey! I'm **GuildForge**, your AI Discord architect. Tell me about the community you're building — the niche, vibe, and how big you expect it to get — and I'll design the perfect server structure for you."
       }
     });
 
     return { conversation };
   });
 
-  app.post("/:id/plan", async (req, reply) => {
+  // ── Plan generation — expensive AI call, 10 per hour per user ─────────
+  app.post("/:id/plan", {
+    config: {
+      rateLimit: {
+        max: 10,
+        timeWindow: "1 hour",
+        keyGenerator: (req: any) => req.user?.id || req.ip
+      }
+    }
+  }, async (req, reply) => {
     const { id } = req.params as { id: string };
     const { brief, freeformDescription } = req.body as any;
 
@@ -132,7 +156,16 @@ export async function conversationRoutes(app: FastifyInstance) {
     }
   });
 
-  app.post("/:id/messages", async (req, reply) => {
+  // ── Chat messages — 30 per 10 min per user (prevents AI cost blowout) ──
+  app.post("/:id/messages", {
+    config: {
+      rateLimit: {
+        max: 30,
+        timeWindow: "10 minutes",
+        keyGenerator: (req: any) => req.user?.id || req.ip
+      }
+    }
+  }, async (req, reply) => {
     const { id } = req.params as { id: string };
     const { content } = req.body as { content: string };
 

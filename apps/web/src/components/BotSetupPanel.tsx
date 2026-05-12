@@ -3,12 +3,15 @@ import { BuildPlan } from "@guildforge/plan-schema";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card";
 
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
+
 export function BotSetupPanel({ plan, guildId }: { plan: BuildPlan, guildId: string }) {
   const [botStatus, setBotStatus] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://localhost:3001/guilds/${guildId}/bot-status`)
+    fetch(`${API}/guilds/${guildId}/bot-status`, { credentials: "include" })
       .then(res => res.json())
       .then(data => {
         setBotStatus(data.botSetupStatus || {});
@@ -24,8 +27,9 @@ export function BotSetupPanel({ plan, guildId }: { plan: BuildPlan, guildId: str
     const newStatus = { ...botStatus, [botId]: checked };
     setBotStatus(newStatus);
     try {
-      await fetch(`http://localhost:3001/guilds/${guildId}/bot-status`, {
+      await fetch(`${API}/guilds/${guildId}/bot-status`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newStatus)
       });

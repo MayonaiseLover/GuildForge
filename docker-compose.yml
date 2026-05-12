@@ -1,19 +1,82 @@
-version: '3.8'
 services:
+  # ── PostgreSQL ─────────────────────────────────────────────────────────────
   db:
-    image: postgres:15
+    image: postgres:16-alpine
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: guildforge
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-guildforge_dev}
       POSTGRES_DB: guildforge
+    volumes:
+      - db_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U guildforge"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── API (Fastify) ──────────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://guildforge:${POSTGRES_PASSWORD:-guildforge_dev}@db:5432/guildforge
+      API_PORT: 3001
+      API_URL: ${API_URL:-http://localhost:3001}
+      WEB_URL: ${WEB_URL:-http://localhost:3000}
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
+      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID:?DISCORD_CLIENT_ID is required}
+      DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET:?DISCORD_CLIENT_SECRET is required}
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required}
+      GUILDFORGE_SNAPSHOT_DIR: /snapshots
     volumes:
-      - pgdata:/var/lib/postgresql/data
-  redis:
-    image: redis:7
+      - snapshots:/snapshots
     ports:
-      - "6379:6379"
+      - "3001:3001"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── MCP Discord Bot ────────────────────────────────────────────────────────
+  # The bot runs as a long-lived stdio server that the API communicates with.
+  # In production, point MCP_DISCORD_COMMAND in the API env to launch this container.
+  mcp:
+    build:
+      context: .
+      dockerfile: apps/mcp-discord/Dockerfile
+    restart: unless-stopped
+    environment:
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required}
+      GUILDFORGE_SNAPSHOT_DIR: /snapshots
+    volumes:
+      - snapshots:/snapshots
+
+  # ── Web (Next.js) ──────────────────────────────────────────────────────────
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:3001}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:3001}
+    ports:
+      - "3000:3000"
 
 volumes:
-  pgdata:
+  db_data:
+  snapshots:
