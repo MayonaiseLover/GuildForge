@@ -18,6 +18,9 @@ model User {
   sessions          Session[]
   conversations     Conversation[]
   managedGuilds     ManagedGuild[]
+  templates         ServerTemplate[]
+  templateStars     Templatestar[]
+  buildEvents       BuildEvent[]
 }
 
 model Session {
@@ -106,4 +109,52 @@ model SnapshotRecord {
   structureJson   Json
   createdAt       DateTime @default(now())
   guild           ManagedGuild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+}
+
+// ── Phase 8: Community Templates ──────────────────────────────────────────────
+
+model ServerTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @db.Text
+  category    String   // gaming | dev | community | study | nft | agency | other
+  tags        String[] @default([])
+  planJson    Json
+  authorId    String
+  isPublic    Boolean  @default(true)
+  starCount   Int      @default(0)
+  useCount    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  stars       Templatestar[]
+
+  @@index([category])
+  @@index([starCount])
+  @@index([isPublic])
+}
+
+model Templatestar {
+  userId     String
+  templateId String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  template   ServerTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@id([userId, templateId])
+}
+
+// ── Phase 9: Analytics ─────────────────────────────────────────────────────────
+
+model BuildEvent {
+  id         String   @id @default(cuid())
+  userId     String
+  guildId    String?
+  eventType  String   // DEPLOY | ROLLBACK | SNAPSHOT | AUDIT | PLAN_GENERATED | CHAT_MESSAGE
+  metadata   Json?    // channels_created, roles_created, operations_count, etc.
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, eventType])
+  @@index([createdAt])
 }

@@ -44,6 +44,18 @@ export function applyPlanChanges(plan: BuildPlan, changes: PlanChange[]): BuildP
       newPlan.serverSettings = { ...newPlan.serverSettings, ...change.changes } as any;
     } else if (change.kind === "add_post_build_action") {
       newPlan.postBuildActions.push(change.action as any);
+    } else if (change.kind === "add_automod_rule") {
+      if (!newPlan.autoModRules) newPlan.autoModRules = [];
+      newPlan.autoModRules.push(change.rule as any);
+    } else if (change.kind === "add_webhook") {
+      if (!newPlan.webhooks) newPlan.webhooks = [];
+      newPlan.webhooks.push(change.webhook as any);
+    } else if (change.kind === "add_embed") {
+      if (!newPlan.embeds) newPlan.embeds = [];
+      newPlan.embeds.push(change.embed as any);
+    } else if (change.kind === "add_forum_seed") {
+      if (!newPlan.forumSeedPosts) newPlan.forumSeedPosts = [];
+      newPlan.forumSeedPosts.push(change.seed as any);
     } else if (change.kind === "full_rebuild") {
       return change.plan as BuildPlan;
     }

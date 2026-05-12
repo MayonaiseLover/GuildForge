@@ -7,6 +7,7 @@ import { registerPermissionTools } from "./permissions.js";
 import { registerSnapshotTools } from "./snapshots.js";
 import { registerBotTools } from "./bots.js";
 import { registerTemplateTools } from "./templates.js";
+import { registerAutomationTools } from "./automation.js";
 import { DiscordClient } from "../discord-client.js";
 import { RateLimiter } from "../ratelimit.js";
 
@@ -32,6 +33,7 @@ export function registerAllTools(server: Server, discordClient: DiscordClient, l
   registerSnapshotTools(registry);
   registerBotTools(registry);
   registerTemplateTools(registry);
+  registerAutomationTools(registry);
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
     tools: registry.tools
