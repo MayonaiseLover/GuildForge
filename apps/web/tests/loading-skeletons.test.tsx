@@ -34,4 +34,22 @@ describe("Loading Skeletons", () => {
     const { container } = render(<MonitoringLoading />);
     expect(container.firstChild).toBeTruthy();
   });
+
+  it("templates loading renders", async () => {
+    const { default: TemplatesLoading } = await import("@/app/templates/loading");
+    const { container } = render(<TemplatesLoading />);
+    expect(container.firstChild).toBeTruthy();
+  });
+
+  it("pricing loading renders", async () => {
+    const { default: PricingLoading } = await import("@/app/pricing/loading");
+    const { container } = render(<PricingLoading />);
+    expect(container.firstChild).toBeTruthy();
+  });
+
+  it("login loading renders", async () => {
+    const { default: LoginLoading } = await import("@/app/login/loading");
+    const { container } = render(<LoginLoading />);
+    expect(container.firstChild).toBeTruthy();
+  });
 });

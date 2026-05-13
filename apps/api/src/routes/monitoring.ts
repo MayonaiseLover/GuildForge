@@ -262,7 +262,7 @@ const monitoringRoutes: FastifyPluginAsync = async (app) => {
     }
 
     return app.prisma.alertRule.create({
-      data: { userId: user.id, guildId, name, condition, threshold: threshold as unknown as import("@prisma/client/runtime/library").InputJsonValue, channels, webhookUrl },
+      data: { userId: user.id, guildId, name, condition, threshold: threshold as any, channels, webhookUrl },
     });
   });
 
@@ -281,7 +281,7 @@ const monitoringRoutes: FastifyPluginAsync = async (app) => {
       where: { id: req.params.ruleId },
       data: {
         ...(name !== undefined && { name }),
-        ...(threshold !== undefined && { threshold: threshold as unknown as import("@prisma/client/runtime/library").InputJsonValue }),
+        ...(threshold !== undefined && { threshold: threshold as any }),
         ...(isActive !== undefined && { isActive }),
         ...(channels !== undefined && { channels }),
         ...(webhookUrl !== undefined && { webhookUrl }),

@@ -44,7 +44,7 @@ export async function captureError(
   }
   // Always log to stdout for structured logging pickup
   const err = error instanceof Error ? error : new Error(String(error));
-  console.error("[error-tracking]", err.message, context ?? {});
+  process.stderr.write(JSON.stringify({ level: "error", msg: err.message, ...context }) + "\n");
 }
 
 export async function captureMessage(
@@ -56,7 +56,7 @@ export async function captureMessage(
   if (sentry) {
     sentry.captureMessage(message, { level, extra: context });
   }
-  console.log(`[error-tracking:${level}]`, message, context ?? {});
+  process.stderr.write(JSON.stringify({ level, msg: message, ...context }) + "\n");
 }
 
 /** Fastify onError hook — wire into app for automatic error capture */

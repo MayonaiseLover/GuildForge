@@ -31,5 +31,10 @@
     "*.{json,md,yml,yaml}": [
       "prettier --write"
     ]
+  },
+  "pnpm": {
+    "overrides": {
+      "fast-uri": "3.1.2"
+    }
   }
 }
