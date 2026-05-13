@@ -18,7 +18,7 @@ export function BotSetupPanel({ plan, guildId }: { plan: BuildPlan, guildId: str
         setIsLoading(false);
       })
       .catch(e => {
-        console.error(e);
+        if (process.env.NODE_ENV === "development") console.error(e);
         setIsLoading(false);
       });
   }, [guildId]);
@@ -34,7 +34,7 @@ export function BotSetupPanel({ plan, guildId }: { plan: BuildPlan, guildId: str
         body: JSON.stringify(newStatus)
       });
     } catch (e) {
-      console.error(e);
+      if (process.env.NODE_ENV === "development") console.error(e);
     }
   };
 

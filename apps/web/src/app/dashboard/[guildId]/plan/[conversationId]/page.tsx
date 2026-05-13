@@ -169,7 +169,7 @@ export default function PlanExecutionPage({ params }: { params: Promise<{ guildI
         if (data.plan.id) setPlanId(data.plan.id);
       }
     } catch (e) {
-      console.error(e);
+      if (process.env.NODE_ENV === "development") console.error(e);
     } finally {
       setIsChatLoading(false);
     }
@@ -255,7 +255,7 @@ export default function PlanExecutionPage({ params }: { params: Promise<{ guildI
     };
     
     eventSource.onerror = (e) => {
-      console.error("SSE Error:", e);
+      if (process.env.NODE_ENV === "development") console.error("SSE Error:", e);
       eventSource.close();
       setIsExecuting(false);
       setLogs(prev => [...prev, "[SYS] Connection closed."]);

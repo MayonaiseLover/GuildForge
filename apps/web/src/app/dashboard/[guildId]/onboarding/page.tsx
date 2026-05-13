@@ -46,7 +46,7 @@ export default function OnboardingPage({ params }: { params: Promise<{ guildId: 
       // 4. Navigate to execution page
       router.push(`/dashboard/${guildId}/plan/${conversation.id}`);
     } catch (err: unknown) {
-      console.error(err);
+      if (process.env.NODE_ENV === "development") console.error(err);
       if (err instanceof Error) {
         setError(err.message || "An error occurred");
       } else {

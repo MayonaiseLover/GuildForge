@@ -1,8 +1,8 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm@9
+# Use corepack for pnpm (no npm install -g)
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Copy workspace manifests
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
@@ -19,13 +19,21 @@ COPY tsconfig.base.json ./
 RUN pnpm --filter @guildforge/mcp-discord build
 
 # ── Runtime ──────────────────────────────────────────────────────────────────
-FROM node:20-alpine
+FROM node:20-alpine AS runner
 WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Non-root user
+RUN addgroup --system --gid 1001 mcp && \
+    adduser --system --uid 1001 mcp
 
 COPY --from=builder /app/apps/mcp-discord/dist ./dist
 COPY --from=builder /app/apps/mcp-discord/package.json ./
 COPY --from=builder /app/node_modules ./node_modules
 
-ENV NODE_ENV=production
+RUN chown -R mcp:mcp /app
+
+USER mcp
 
 CMD ["node", "dist/index.js"]
