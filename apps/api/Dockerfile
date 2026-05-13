@@ -1,5 +1,5 @@
 FROM node:20-alpine AS base
-RUN npm install -g pnpm@9
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # ── Dependencies ──────────────────────────────────────────────────────────────
 FROM base AS deps
@@ -27,10 +27,13 @@ RUN cd apps/api && pnpm exec prisma generate && pnpm build
 
 # ── Runtime ───────────────────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
-RUN npm install -g pnpm@9
 WORKDIR /app
 
 ENV NODE_ENV=production
+
+# Non-root user for security
+RUN addgroup --system --gid 1001 guildforge && \
+    adduser --system --uid 1001 guildforge
 
 # Copy built artifacts and runtime deps
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
@@ -40,6 +43,11 @@ COPY --from=builder /app/packages ./packages
 
 # Prisma schema needed for migrate at runtime
 COPY prisma/ ./prisma/
+
+# Set ownership
+RUN chown -R guildforge:guildforge /app
+
+USER guildforge
 
 EXPOSE 3001
 

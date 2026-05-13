@@ -55,10 +55,10 @@ export async function deliverAlert(
       });
       results.webhook = res.ok;
       if (!results.webhook) {
-        console.warn(`[alert-delivery] Webhook returned ${res.status} for alert ${alert.id}`);
+        process.stderr.write(JSON.stringify({ level: "warn", service: "alert-delivery", msg: `Webhook returned ${res.status}`, alertId: alert.id, ts: new Date().toISOString() }) + "\n");
       }
     } catch (err) {
-      console.error(`[alert-delivery] Webhook failed for alert ${alert.id}:`, err);
+      process.stderr.write(JSON.stringify({ level: "error", service: "alert-delivery", msg: "Webhook failed", alertId: alert.id, error: err instanceof Error ? err.message : String(err), ts: new Date().toISOString() }) + "\n");
     }
   }
 
@@ -105,11 +105,11 @@ export async function deliverAlert(
         });
         results.dm = msgRes.ok;
         if (!results.dm) {
-          console.warn(`[alert-delivery] Discord DM returned ${msgRes.status} for alert ${alert.id}`);
+          process.stderr.write(JSON.stringify({ level: "warn", service: "alert-delivery", msg: `Discord DM returned ${msgRes.status}`, alertId: alert.id, ts: new Date().toISOString() }) + "\n");
         }
       }
     } catch (err) {
-      console.error(`[alert-delivery] Discord DM failed for alert ${alert.id}:`, err);
+      process.stderr.write(JSON.stringify({ level: "error", service: "alert-delivery", msg: "Discord DM failed", alertId: alert.id, error: err instanceof Error ? err.message : String(err), ts: new Date().toISOString() }) + "\n");
     }
   }
 

@@ -20,7 +20,7 @@ function getKey(): Buffer {
     if (process.env.NODE_ENV === "production") {
       throw new Error("[crypto] SESSION_SECRET is required in production — token encryption cannot be disabled");
     }
-    console.warn("[crypto] SESSION_SECRET not set — token encryption disabled (dev mode only)");
+    process.stderr.write(JSON.stringify({ level: "warn", service: "crypto", msg: "SESSION_SECRET not set — token encryption disabled (dev mode only)", ts: new Date().toISOString() }) + "\n");
     _key = Buffer.alloc(KEY_LEN, 0);
   } else {
     _key = deriveKey(secret);

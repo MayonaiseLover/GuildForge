@@ -12,4 +12,7 @@ async function main() {
   }
 }
 
-main().catch(console.error);
+main().catch((err) => {
+  process.stderr.write(JSON.stringify({ level: "fatal", service: "api", msg: "Unhandled startup error", error: err instanceof Error ? err.message : String(err), ts: new Date().toISOString() }) + "\n");
+  process.exit(1);
+});

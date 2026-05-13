@@ -49,3 +49,10 @@ fix-imports.js
 GUILDFORGE_100K_AUDIT.md
 GUILDFORGE_WORKFLOW_SIMULATION.md
 LAUNCH_READINESS_AUDIT.md
+
+# Debug/build artifacts
+*.log
+lint-errors.txt
+lint.txt
+typecheck.log
+test-output.txt

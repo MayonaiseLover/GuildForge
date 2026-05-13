@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 11
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -32,7 +32,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 11
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -40,7 +40,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: npx prisma generate
 
-      # Run tests with coverage
+      # Unit + integration tests
       - name: Run tests
         run: pnpm test
 
@@ -48,6 +48,15 @@ jobs:
         run: cd apps/api && pnpm vitest run --coverage
         env:
           NODE_ENV: test
+
+      # E2E smoke tests
+      - name: Install Playwright browsers
+        run: cd apps/web && npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: cd apps/web && npx playwright test
+        env:
+          BASE_URL: http://localhost:3000
 
       # Upload coverage artifacts
       - name: Upload coverage
@@ -65,7 +74,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 11
       - uses: actions/setup-node@v4
         with:
           node-version: 20
