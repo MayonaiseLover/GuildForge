@@ -31,16 +31,5 @@
     "*.{json,md,yml,yaml}": [
       "prettier --write"
     ]
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@prisma/client",
-      "@prisma/engines",
-      "esbuild",
-      "msw",
-      "prisma",
-      "sharp",
-      "unrs-resolver"
-    ]
   }
 }
