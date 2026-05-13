@@ -100,6 +100,9 @@ export async function buildApp() {
   // Multi-LLM Provider Management
   app.register((await import("./routes/providers")).default, { prefix: "/providers" });
 
+  // Phase 13: Prometheus Metrics
+  app.register((await import("./plugins/metrics")).default);
+
   // ── Error Tracking ──────────────────────────────────────────────────────
   app.addHook("onError", errorHook());
 
