@@ -20,6 +20,8 @@ jobs:
       - name: Security audit (fails on high/critical)
         run: pnpm audit --audit-level=high
       - run: npx prisma generate
+      - name: Build shared packages
+        run: pnpm turbo run build --filter='./packages/*'
       - run: pnpm lint
       - run: pnpm typecheck
 
