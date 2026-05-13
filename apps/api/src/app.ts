@@ -1,15 +1,32 @@
 import fastify from "fastify";
 import cors from "@fastify/cors";
 import cookie from "@fastify/cookie";
+import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
 import { registerPrisma } from "./plugins/prisma";
 import { registerLucia } from "./plugins/lucia";
 import discordAuthRoutes from "./routes/auth/discord";
 import sessionRoutes from "./routes/auth/session";
 import guildsRoutes from "./routes/guilds";
+import crypto from "crypto";
 
 export async function buildApp() {
-  const app = fastify({ logger: true });
+  const app = fastify({
+    logger: {
+      level: process.env.LOG_LEVEL || "info",
+      transport: process.env.NODE_ENV === "development"
+        ? { target: "pino-pretty", options: { colorize: true } }
+        : undefined,
+    },
+    bodyLimit: 1_048_576, // 1MB global body limit
+    genReqId: () => crypto.randomUUID(),
+  });
+
+  // ── Security Headers ──────────────────────────────────────────────────────
+  await app.register(helmet, {
+    contentSecurityPolicy: false, // Let Next.js handle CSP
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  });
 
   await app.register(cors, {
     origin: process.env.WEB_URL,
@@ -19,10 +36,9 @@ export async function buildApp() {
   await app.register(cookie);
 
   // ── Global rate limit (all routes) ──────────────────────────────────────
-  // Generous default — prevents basic DoS, not too restrictive for normal use
   await app.register(rateLimit, {
     global: true,
-    max: 120,         // 120 requests
+    max: 120,
     timeWindow: "1 minute",
     keyGenerator: (req) => req.ip,
     errorResponseBuilder: (_req, ctx) => ({
@@ -34,6 +50,25 @@ export async function buildApp() {
 
   await registerPrisma(app);
   await registerLucia(app);
+
+  // ── Health Check ────────────────────────────────────────────────────────
+  app.get("/health", async (req, reply) => {
+    try {
+      await app.prisma.$queryRaw`SELECT 1`;
+      return {
+        status: "healthy",
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+        memory: {
+          rss: Math.round(process.memoryUsage().rss / 1024 / 1024),
+          heapUsed: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+        },
+      };
+    } catch (err) {
+      req.log.error(err, "Health check failed");
+      return reply.status(503).send({ status: "unhealthy", error: "Database connection failed" });
+    }
+  });
 
   app.register(discordAuthRoutes, { prefix: "/auth/discord" });
   app.register(sessionRoutes, { prefix: "/auth" });

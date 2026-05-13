@@ -1,22 +1,15 @@
 import { FastifyPluginAsync } from "fastify";
 import { PLANS, getPlanLimits } from "../services/stripe";
+import { requireAuth, getUserPlan } from "../hooks/auth";
 
 const billingRoutes: FastifyPluginAsync = async (app) => {
-  // Auth helper
-  async function requireAuth(req: import("fastify").FastifyRequest, reply: import("fastify").FastifyReply) {
-    const sessionId = req.cookies[app.lucia.sessionCookieName];
-    if (!sessionId) { reply.status(401).send({ error: "Unauthorized" }); return null; }
-    const { session, user } = await app.lucia.validateSession(sessionId);
-    if (!session) { reply.clearCookie(app.lucia.sessionCookieName); reply.status(401).send({ error: "Unauthorized" }); return null; }
-    return user;
-  }
 
   // ── GET /billing/subscription — current user's subscription ─────────────
   app.get("/subscription", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
 
-    const plan = (user as unknown as { plan: string }).plan ?? "free";
+    const plan = getUserPlan(user);
     const limits = getPlanLimits(plan);
 
     return { plan, status: "active", currentPeriodEnd: null, cancelAtPeriodEnd: false, limits };
@@ -24,7 +17,7 @@ const billingRoutes: FastifyPluginAsync = async (app) => {
 
   // ── GET /billing/plans — list available plans ───────────────────────────
   app.get("/plans", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
 
     return {
@@ -37,7 +30,7 @@ const billingRoutes: FastifyPluginAsync = async (app) => {
 
   // ── POST /billing/checkout — (stub: Stripe integration pending) ────────
   app.post("/checkout", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
     return reply.status(503).send({
       error: "Stripe billing integration coming soon",
@@ -47,7 +40,7 @@ const billingRoutes: FastifyPluginAsync = async (app) => {
 
   // ── POST /billing/portal — (stub: Stripe integration pending) ──────────
   app.post("/portal", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
     return reply.status(503).send({
       error: "Stripe billing integration coming soon",

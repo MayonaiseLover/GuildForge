@@ -237,7 +237,7 @@ model TeamInvite {
   teamId    String
   email     String
   role      String   @default("member")
-  token     String   @unique @default(cuid())
+  token     String   @unique
   expiresAt DateTime
   accepted  Boolean  @default(false)
   createdAt DateTime @default(now())

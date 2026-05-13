@@ -34,3 +34,18 @@ npm-debug.log*
 
 # Coverage
 coverage/
+
+# Build artifacts (workspace packages)
+packages/*/dist/
+apps/*/dist/
+
+# Debug/temp files
+test-output.txt
+lint-errors.txt
+lint.txt
+fix-imports.js
+
+# Stale audit artifacts
+GUILDFORGE_100K_AUDIT.md
+GUILDFORGE_WORKFLOW_SIMULATION.md
+LAUNCH_READINESS_AUDIT.md

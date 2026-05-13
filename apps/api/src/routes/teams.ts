@@ -1,18 +1,11 @@
 import { FastifyPluginAsync } from "fastify";
+import { randomBytes } from "crypto";
+import { requireAuth, getUserPlan } from "../hooks/auth";
 
 const teamsRoutes: FastifyPluginAsync = async (app) => {
-  // Auth helper
-  async function requireAuth(req: import("fastify").FastifyRequest, reply: import("fastify").FastifyReply) {
-    const sessionId = req.cookies[app.lucia.sessionCookieName];
-    if (!sessionId) { reply.status(401).send({ error: "Unauthorized" }); return null; }
-    const { session, user } = await app.lucia.validateSession(sessionId);
-    if (!session) { reply.clearCookie(app.lucia.sessionCookieName); reply.status(401).send({ error: "Unauthorized" }); return null; }
-    return user;
-  }
-
   // ── GET /teams — list user's teams ──────────────────────────────────────
   app.get("/", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
 
     const memberships = await app.prisma.teamMember.findMany({
@@ -38,7 +31,7 @@ const teamsRoutes: FastifyPluginAsync = async (app) => {
 
   // ── POST /teams — create a new team ─────────────────────────────────────
   app.post<{ Body: { name: string; slug: string } }>("/", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
 
     const { name, slug } = req.body;
@@ -56,7 +49,7 @@ const teamsRoutes: FastifyPluginAsync = async (app) => {
         name,
         slug,
         ownerId: user.id,
-        plan: (user as unknown as { plan: string }).plan,
+        plan: getUserPlan(user),
         members: { create: { userId: user.id, role: "owner" } },
       },
     });
@@ -66,7 +59,7 @@ const teamsRoutes: FastifyPluginAsync = async (app) => {
 
   // ── GET /teams/:teamId — get team details ───────────────────────────────
   app.get<{ Params: { teamId: string } }>("/:teamId", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
 
     const { teamId } = req.params;
@@ -99,7 +92,7 @@ const teamsRoutes: FastifyPluginAsync = async (app) => {
   app.post<{ Params: { teamId: string }; Body: { email: string; role?: string } }>(
     "/:teamId/invite",
     async (req, reply) => {
-      const user = await requireAuth(req, reply);
+      const user = await requireAuth(app, req, reply);
       if (!user) return;
 
       const { teamId } = req.params;
@@ -120,11 +113,15 @@ const teamsRoutes: FastifyPluginAsync = async (app) => {
         return reply.status(403).send({ error: "Team member limit reached. Upgrade your plan." });
       }
 
+      // Generate cryptographically secure invite token
+      const token = randomBytes(32).toString("hex");
+
       const invite = await app.prisma.teamInvite.create({
         data: {
           teamId,
           email,
           role: ["member", "admin", "viewer"].includes(role) ? role : "member",
+          token,
           expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         },
       });
@@ -135,7 +132,7 @@ const teamsRoutes: FastifyPluginAsync = async (app) => {
 
   // ── POST /teams/join/:token — accept an invite ─────────────────────────
   app.post<{ Params: { token: string } }>("/join/:token", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
 
     const invite = await app.prisma.teamInvite.findUnique({
@@ -163,7 +160,7 @@ const teamsRoutes: FastifyPluginAsync = async (app) => {
   app.delete<{ Params: { teamId: string; userId: string } }>(
     "/:teamId/members/:userId",
     async (req, reply) => {
-      const user = await requireAuth(req, reply);
+      const user = await requireAuth(app, req, reply);
       if (!user) return;
 
       const { teamId, userId } = req.params;
@@ -189,7 +186,7 @@ const teamsRoutes: FastifyPluginAsync = async (app) => {
   app.post<{ Params: { teamId: string }; Body: { guildId: string } }>(
     "/:teamId/guilds",
     async (req, reply) => {
-      const user = await requireAuth(req, reply);
+      const user = await requireAuth(app, req, reply);
       if (!user) return;
 
       const { teamId } = req.params;
@@ -209,7 +206,7 @@ const teamsRoutes: FastifyPluginAsync = async (app) => {
 
   // ── DELETE /teams/:teamId — delete team ─────────────────────────────────
   app.delete<{ Params: { teamId: string } }>("/:teamId", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
 
     const team = await app.prisma.team.findUnique({ where: { id: req.params.teamId } });
