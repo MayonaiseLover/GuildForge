@@ -17,8 +17,10 @@ function getKey(): Buffer {
   if (_key) return _key;
   const secret = process.env.SESSION_SECRET;
   if (!secret) {
-    // Dev fallback — tokens won't be encrypted but app won't crash
-    console.warn("[crypto] SESSION_SECRET not set — token encryption disabled");
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("[crypto] SESSION_SECRET is required in production — token encryption cannot be disabled");
+    }
+    console.warn("[crypto] SESSION_SECRET not set — token encryption disabled (dev mode only)");
     _key = Buffer.alloc(KEY_LEN, 0);
   } else {
     _key = deriveKey(secret);

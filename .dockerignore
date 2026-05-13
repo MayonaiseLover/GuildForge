@@ -1,0 +1,17 @@
+node_modules
+.git
+.turbo
+.next
+.husky
+.researches
+.env*
+*.md
+assets
+docs
+coverage
+*.log
+lint-errors.txt
+lint.txt
+typecheck.log
+fix-imports.js
+test-output.txt

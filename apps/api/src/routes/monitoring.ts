@@ -1,18 +1,11 @@
 import { FastifyPluginAsync } from "fastify";
+import { requireAuth } from "../hooks/auth";
 
 const monitoringRoutes: FastifyPluginAsync = async (app) => {
-  // Auth helper
-  async function requireAuth(req: import("fastify").FastifyRequest, reply: import("fastify").FastifyReply) {
-    const sessionId = req.cookies[app.lucia.sessionCookieName];
-    if (!sessionId) { reply.status(401).send({ error: "Unauthorized" }); return null; }
-    const { session, user } = await app.lucia.validateSession(sessionId);
-    if (!session) { reply.clearCookie(app.lucia.sessionCookieName); reply.status(401).send({ error: "Unauthorized" }); return null; }
-    return user;
-  }
 
   // ── GET /monitoring/health/:guildId — latest health status ──────────────
   app.get<{ Params: { guildId: string } }>("/health/:guildId", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
 
     const { guildId } = req.params;
@@ -37,7 +30,7 @@ const monitoringRoutes: FastifyPluginAsync = async (app) => {
 
   // ── POST /monitoring/health/:guildId/check — trigger health check ──────
   app.post<{ Params: { guildId: string } }>("/health/:guildId/check", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
 
     const { guildId } = req.params;
@@ -131,7 +124,7 @@ const monitoringRoutes: FastifyPluginAsync = async (app) => {
   app.get<{ Querystring: { guildId?: string; acknowledged?: string; limit?: string } }>(
     "/alerts",
     async (req, reply) => {
-      const user = await requireAuth(req, reply);
+      const user = await requireAuth(app, req, reply);
       if (!user) return;
 
       const { guildId, acknowledged, limit = "50" } = req.query;
@@ -159,7 +152,7 @@ const monitoringRoutes: FastifyPluginAsync = async (app) => {
 
   // ── POST /monitoring/alerts/:alertId/acknowledge ───────────────────────
   app.post<{ Params: { alertId: string } }>("/alerts/:alertId/acknowledge", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
 
     const alert = await app.prisma.alert.findUnique({
@@ -179,7 +172,7 @@ const monitoringRoutes: FastifyPluginAsync = async (app) => {
   // ── CRUD for Alert Rules ───────────────────────────────────────────────
 
   app.get("/rules", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
 
     return app.prisma.alertRule.findMany({
@@ -195,7 +188,7 @@ const monitoringRoutes: FastifyPluginAsync = async (app) => {
       threshold: Record<string, unknown>; channels?: string[]; webhookUrl?: string;
     };
   }>("/rules", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
 
     const { name, guildId, condition, threshold, channels = [], webhookUrl } = req.body;
@@ -213,7 +206,7 @@ const monitoringRoutes: FastifyPluginAsync = async (app) => {
     Params: { ruleId: string };
     Body: { name?: string; threshold?: Record<string, unknown>; isActive?: boolean; channels?: string[]; webhookUrl?: string };
   }>("/rules/:ruleId", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
 
     const rule = await app.prisma.alertRule.findUnique({ where: { id: req.params.ruleId } });
@@ -233,7 +226,7 @@ const monitoringRoutes: FastifyPluginAsync = async (app) => {
   });
 
   app.delete<{ Params: { ruleId: string } }>("/rules/:ruleId", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
 
     const rule = await app.prisma.alertRule.findUnique({ where: { id: req.params.ruleId } });
@@ -247,7 +240,7 @@ const monitoringRoutes: FastifyPluginAsync = async (app) => {
   app.get<{ Params: { guildId: string }; Querystring: { days?: string } }>(
     "/metrics/:guildId",
     async (req, reply) => {
-      const user = await requireAuth(req, reply);
+      const user = await requireAuth(app, req, reply);
       if (!user) return;
 
       const { guildId } = req.params;
