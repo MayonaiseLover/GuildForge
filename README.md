@@ -8,8 +8,8 @@
   <br />
 
   <a href="https://github.com/MayonaiseLover/GuildForge/actions/workflows/ci.yml"><img src="https://github.com/MayonaiseLover/GuildForge/actions/workflows/ci.yml/badge.svg?branch=master" alt="CI" /></a>
-  <a href="https://github.com/MayonaiseLover/GuildForge/blob/master/LICENSE"><img src="https://img.shields.io/github/license/MayonaiseLover/GuildForge?color=6366f1&label=License" alt="License" /></a>
-  <a href="https://github.com/MayonaiseLover/GuildForge/stargazers"><img src="https://img.shields.io/github/stars/MayonaiseLover/GuildForge?style=flat&color=8b5cf6&label=Stars" alt="Stars" /></a>
+  <a href="https://github.com/MayonaiseLover/GuildForge/blob/master/LICENSE"><img src="https://img.shields.io/github/license/MayonaiseLover/GuildForge?color=6366f1&label=License&cacheSeconds=3600" alt="License" /></a>
+  <a href="https://github.com/MayonaiseLover/GuildForge/stargazers"><img src="https://img.shields.io/github/stars/MayonaiseLover/GuildForge?style=flat&color=8b5cf6&label=Stars&cacheSeconds=3600" alt="Stars" /></a>
   <img src="https://img.shields.io/badge/Tests-91_passing-2ea44f?logo=vitest&logoColor=white" alt="Tests" />
   <img src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Security-Hardened-2ea44f?logo=letsencrypt&logoColor=white" alt="Security" />
