@@ -1,5 +1,6 @@
 import { FastifyPluginAsync } from "fastify";
 import { requireAuth } from "../hooks/auth";
+import { deliverAlert } from "../services/alert-delivery";
 
 const monitoringRoutes: FastifyPluginAsync = async (app) => {
 
@@ -143,7 +144,7 @@ const monitoringRoutes: FastifyPluginAsync = async (app) => {
       }
 
       if (shouldAlert) {
-        await app.prisma.alert.create({
+        const createdAlert = await app.prisma.alert.create({
           data: {
             ruleId: rule.id, guildId, severity: "warning",
             title: alertTitle, message: alertMessage,
@@ -153,6 +154,30 @@ const monitoringRoutes: FastifyPluginAsync = async (app) => {
         await app.prisma.alertRule.update({
           where: { id: rule.id }, data: { lastTriggered: new Date() },
         });
+
+        // ── Deliver notifications (fire-and-forget) ───────────────────────
+        const discordAccount = await app.prisma.oAuthAccount.findFirst({
+          where: { userId: user.id, provider: "discord" },
+          select: { providerUserId: true },
+        });
+
+        deliverAlert(
+          {
+            id: createdAlert.id,
+            guildId,
+            severity: "warning",
+            title: alertTitle,
+            message: alertMessage,
+            ruleId: rule.id,
+            ruleName: rule.name,
+            createdAt: createdAlert.createdAt,
+          },
+          {
+            webhookUrl: rule.webhookUrl,
+            channels: rule.channels,
+            discordUserId: discordAccount?.providerUserId,
+          },
+        ).catch((err) => req.log.error({ err, alertId: createdAlert.id }, "Alert delivery failed"));
       }
     }
 
