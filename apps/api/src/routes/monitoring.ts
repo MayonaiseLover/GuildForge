@@ -41,9 +41,43 @@ const monitoringRoutes: FastifyPluginAsync = async (app) => {
     if (!guild) return reply.status(403).send({ error: "Guild not found or not owned" });
 
     const issues: Array<{ severity: string; code: string; message: string }> = [];
-    const channelCount = Math.floor(Math.random() * 30) + 5;
-    const roleCount = Math.floor(Math.random() * 15) + 3;
-    const memberCount = Math.floor(Math.random() * 500) + 10;
+    let channelCount = 0;
+    let roleCount = 0;
+    let memberCount = 0;
+    let boostLevel = 0;
+
+    // ── Fetch real data from Discord via MCP client ────────────────────────
+    try {
+      const { MCPDiscordClient } = await import("../services/mcp");
+      const mcpClient = new MCPDiscordClient();
+
+      const guildData = await mcpClient.callTool("get_guild", { guildId });
+      const guildInfo = JSON.parse((guildData.content[0] as any).text);
+
+      memberCount = guildInfo.approximate_member_count ?? guildInfo.member_count ?? 0;
+      boostLevel = guildInfo.premium_tier ?? 0;
+
+      const channelData = await mcpClient.callTool("list_channels", { guildId });
+      const channels = JSON.parse((channelData.content[0] as any).text);
+      channelCount = Array.isArray(channels) ? channels.length : 0;
+
+      const roleData = await mcpClient.callTool("list_roles", { guildId });
+      const roles = JSON.parse((roleData.content[0] as any).text);
+      roleCount = Array.isArray(roles) ? roles.length : 0;
+
+      req.log.info({ guildId, memberCount, channelCount, roleCount }, "Health check: live data from Discord");
+    } catch (err) {
+      req.log.warn({ guildId, err }, "MCP unavailable — using last cached values");
+      const lastCheck = await app.prisma.healthCheck.findFirst({
+        where: { guildId }, orderBy: { checkedAt: "desc" },
+      });
+      if (lastCheck) {
+        memberCount = lastCheck.memberCount ?? 0;
+        channelCount = lastCheck.channelCount ?? 0;
+        roleCount = lastCheck.roleCount ?? 0;
+        boostLevel = lastCheck.boostLevel ?? 0;
+      }
+    }
 
     if (channelCount > 50) {
       issues.push({ severity: "warning", code: "CHANNEL_BLOAT", message: `Server has ${channelCount} channels. Consider archiving unused channels.` });
@@ -51,15 +85,20 @@ const monitoringRoutes: FastifyPluginAsync = async (app) => {
     if (roleCount > 25) {
       issues.push({ severity: "warning", code: "ROLE_BLOAT", message: `Server has ${roleCount} roles. Review for unused roles.` });
     }
+    if (memberCount === 0) {
+      issues.push({ severity: "critical", code: "NO_MEMBERS", message: "Could not retrieve member count — bot may lack permissions." });
+    }
 
     let status = "HEALTHY";
     if (issues.some((i) => i.severity === "critical")) status = "CRITICAL";
     else if (issues.some((i) => i.severity === "warning")) status = "DEGRADED";
 
+    const onlineCount = Math.max(1, Math.floor(memberCount * 0.15));
+
     const healthCheck = await app.prisma.healthCheck.create({
       data: {
         guildId, status, memberCount, channelCount, roleCount,
-        boostLevel: 0, onlineCount: Math.floor(memberCount * 0.15),
+        boostLevel, onlineCount,
         issues: issues.length > 0 ? issues : undefined,
       },
     });

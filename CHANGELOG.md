@@ -31,9 +31,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Error Tracking** — Sentry integration with lazy initialization; falls back to structured stdout logging when `SENTRY_DSN` is not set.
+- **OpenAPI Documentation** — Auto-generated Swagger docs at `/docs` via `@fastify/swagger`.
+- **Typed API Client** — Full TypeScript API client (`apps/web/src/lib/api.ts`) covering all endpoints.
+- **API Error Boundaries** — `useApi` hook and `ApiErrorDisplay` component for typed error handling in frontend.
+- **Route Integration Tests** — 11 integration tests via Fastify `inject()` covering health, auth guards, billing stubs, and slug validation.
+- **Coverage Reporting** — v8 provider with lcov output and CI artifact upload.
+- **Loading Skeletons** — Teams, monitoring, analytics, and billing pages.
+- **CONTRIBUTING.md** — Full development setup guide with architecture decisions and security notes.
+
+### Changed
+- **Real Monitoring Data** — Health checks now fetch live Discord data via MCP client (channels, roles, members, boost level); falls back to cached data when MCP is unavailable.
+- **Auth Proxy** — Enhanced with all protected routes and login redirect.
+- **CI Pipeline** — Added coverage step and artifact upload.
+
+### Fixed
+- Fastify plugin version alignment (`@fastify/helmet@11`, `@fastify/rate-limit@9` for Fastify 4.x).
+- CORS origin uses `env` module with localhost fallback (was `undefined` in tests).
+- Removed duplicate `/health` registration conflict between `app.ts` and `status.ts`.
+- Nullable Prisma field assignments in monitoring fallback.
+
 ### Planned
 - Stripe Checkout and Customer Portal integration.
-- Real Discord API health data (replacing simulation mode).
 - Alert delivery via webhooks and Discord DM notifications.
-- OpenAPI/Swagger documentation.
-- Frontend test suite and coverage reporting.
+- Frontend smoke tests (React Testing Library).
+- Turbo v2 upgrade for `tasks` syntax.

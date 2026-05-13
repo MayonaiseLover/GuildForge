@@ -10,6 +10,7 @@ import sessionRoutes from "./routes/auth/session";
 import guildsRoutes from "./routes/guilds";
 import crypto from "crypto";
 import { env } from "./env";
+import { errorHook } from "./services/error-tracking";
 
 export async function buildApp() {
   const app = fastify({
@@ -51,6 +52,10 @@ export async function buildApp() {
 
   await registerPrisma(app);
   await registerLucia(app);
+
+  // ── API Documentation ────────────────────────────────────────────────────
+  const { registerSwagger } = await import("./plugins/swagger");
+  await registerSwagger(app);
 
   // ── Health Check ────────────────────────────────────────────────────────
   app.get("/health", async (req, reply) => {
@@ -94,6 +99,9 @@ export async function buildApp() {
 
   // Multi-LLM Provider Management
   app.register((await import("./routes/providers")).default, { prefix: "/providers" });
+
+  // ── Error Tracking ──────────────────────────────────────────────────────
+  app.addHook("onError", errorHook());
 
   return app;
 }

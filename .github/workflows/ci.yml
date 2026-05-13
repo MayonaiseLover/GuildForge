@@ -38,7 +38,24 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: npx prisma generate
-      - run: pnpm test
+
+      # Run tests with coverage
+      - name: Run tests
+        run: pnpm test
+
+      - name: Run API coverage
+        run: cd apps/api && pnpm vitest run --coverage
+        env:
+          NODE_ENV: test
+
+      # Upload coverage artifacts
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: apps/api/coverage/
+          retention-days: 14
 
   build:
     runs-on: ubuntu-latest
