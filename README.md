@@ -11,6 +11,8 @@
   <a href="https://github.com/MayonaiseLover/GuildForge/stargazers"><img src="https://img.shields.io/github/stars/MayonaiseLover/GuildForge?style=flat&color=8b5cf6&label=Stars" alt="Stars" /></a>
   <a href="https://github.com/MayonaiseLover/GuildForge"><img src="https://img.shields.io/github/languages/code-size/MayonaiseLover/GuildForge?color=6366f1&label=Code%20Size" alt="Code Size" /></a>
   <a href="https://github.com/MayonaiseLover/GuildForge/commits/master"><img src="https://img.shields.io/github/last-commit/MayonaiseLover/GuildForge?color=8b5cf6&label=Last%20Commit" alt="Last Commit" /></a>
+  <img src="https://img.shields.io/badge/API%20Docs-Swagger-85EA2D?logo=swagger" alt="API Docs" />
+  <img src="https://img.shields.io/badge/Security-Hardened-2ea44f?logo=shield" alt="Security" />
 
   <br /><br />
 
