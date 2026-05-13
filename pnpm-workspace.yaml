@@ -2,7 +2,11 @@ packages:
   - "apps/*"
   - "packages/*"
 
-# pnpm 11+ build script security: explicitly allow packages that need postinstall
+# pnpm 11+ build script security
+# Disable strict build gating (allow all postinstall scripts)
+# Individual package approval via onlyBuiltDependencies was unreliable with --frozen-lockfile
+strictDepBuilds: false
+
 onlyBuiltDependencies:
   - "@prisma/client"
   - "@prisma/engines"
