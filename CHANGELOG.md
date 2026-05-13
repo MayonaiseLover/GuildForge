@@ -36,7 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **OpenAPI Documentation** — Auto-generated Swagger docs at `/docs` via `@fastify/swagger`.
 - **Typed API Client** — Full TypeScript API client (`apps/web/src/lib/api.ts`) covering all endpoints.
 - **API Error Boundaries** — `useApi` hook and `ApiErrorDisplay` component for typed error handling in frontend.
+- **Alert Delivery** — Webhook (Discord/Slack embed format) and Discord DM notifications for triggered alerts.
 - **Route Integration Tests** — 11 integration tests via Fastify `inject()` covering health, auth guards, billing stubs, and slug validation.
+- **Frontend Smoke Tests** — 22 tests (ErrorBoundary, ApiError, ApiErrorDisplay, loading skeletons) via Vitest + React Testing Library.
 - **Coverage Reporting** — v8 provider with lcov output and CI artifact upload.
 - **Loading Skeletons** — Teams, monitoring, analytics, and billing pages.
 - **CONTRIBUTING.md** — Full development setup guide with architecture decisions and security notes.
@@ -45,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Real Monitoring Data** — Health checks now fetch live Discord data via MCP client (channels, roles, members, boost level); falls back to cached data when MCP is unavailable.
 - **Auth Proxy** — Enhanced with all protected routes and login redirect.
 - **CI Pipeline** — Added coverage step and artifact upload.
+- **Turbo v2** — Upgraded from v1.13.4 to v2.9.12; migrated `pipeline` → `tasks`.
 
 ### Fixed
 - Fastify plugin version alignment (`@fastify/helmet@11`, `@fastify/rate-limit@9` for Fastify 4.x).
@@ -54,6 +57,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Planned
 - Stripe Checkout and Customer Portal integration.
-- Alert delivery via webhooks and Discord DM notifications.
-- Frontend smoke tests (React Testing Library).
-- Turbo v2 upgrade for `tasks` syntax.
