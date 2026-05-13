@@ -9,6 +9,7 @@ import discordAuthRoutes from "./routes/auth/discord";
 import sessionRoutes from "./routes/auth/session";
 import guildsRoutes from "./routes/guilds";
 import crypto from "crypto";
+import { env } from "./env";
 
 export async function buildApp() {
   const app = fastify({
@@ -29,7 +30,7 @@ export async function buildApp() {
   });
 
   await app.register(cors, {
-    origin: process.env.WEB_URL,
+    origin: env.WEB_URL || "http://localhost:3000",
     credentials: true,
   });
 

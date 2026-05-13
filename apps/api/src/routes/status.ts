@@ -1,7 +1,8 @@
 import { FastifyInstance } from "fastify";
 
 export default async function statusRoutes(fastify: FastifyInstance) {
-  const handler = async (_request: any, reply: any) => {
+  // /status — user-friendly status page (health check is in app.ts at /health)
+  fastify.get("/status", async (_request, reply) => {
     try {
       await fastify.prisma.$queryRaw`SELECT 1`;
       return reply.send({
@@ -16,9 +17,5 @@ export default async function statusRoutes(fastify: FastifyInstance) {
         timestamp: new Date().toISOString()
       });
     }
-  };
-
-  // Both paths — /status for humans, /health for Docker/k8s healthchecks
-  fastify.get("/status", handler);
-  fastify.get("/health", handler);
+  });
 }

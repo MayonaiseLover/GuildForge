@@ -1,26 +1,19 @@
 import { FastifyPluginAsync } from "fastify";
 import { listProviders, getProvider } from "../services/llm";
+import { requireAuth } from "../hooks/auth";
 
 const providersRoutes: FastifyPluginAsync = async (app) => {
-  // Auth helper
-  async function requireAuth(req: import("fastify").FastifyRequest, reply: import("fastify").FastifyReply) {
-    const sessionId = req.cookies[app.lucia.sessionCookieName];
-    if (!sessionId) { reply.status(401).send({ error: "Unauthorized" }); return null; }
-    const { session, user } = await app.lucia.validateSession(sessionId);
-    if (!session) { reply.clearCookie(app.lucia.sessionCookieName); reply.status(401).send({ error: "Unauthorized" }); return null; }
-    return user;
-  }
 
   // ── GET /providers — list all LLM providers ─────────────────────────────
   app.get("/", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
     return { providers: listProviders() };
   });
 
   // ── GET /providers/:id/models — list models for a provider ──────────────
   app.get<{ Params: { id: string } }>("/:id/models", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
 
     try {
@@ -34,7 +27,7 @@ const providersRoutes: FastifyPluginAsync = async (app) => {
 
   // ── POST /providers/:id/test — test a provider connection ───────────────
   app.post<{ Params: { id: string } }>("/:id/test", async (req, reply) => {
-    const user = await requireAuth(req, reply);
+    const user = await requireAuth(app, req, reply);
     if (!user) return;
 
     try {
