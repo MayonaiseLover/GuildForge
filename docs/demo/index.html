@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>GuildForge — AI-Powered Discord Server Architect</title>
+  <meta name="description" content="Describe your community in plain English. Watch it deploy in 60 seconds. AI-powered Discord server architecture with 22 MCP tools."/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<canvas id="particles"></canvas>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <div class="container">
+    <div class="badge"><span class="dot"></span> Live Interactive Demo</div>
+    <div class="hero-logo"><img src="../../assets/logo.png" alt="GuildForge" onerror="this.parentElement.textContent='⚔️'"/></div>
+    <h1><span class="glow-text">GuildForge</span></h1>
+    <p class="subtitle">Describe your community in plain English.<br/>Watch it deploy in 60 seconds.</p>
+    <div class="prompt-box">
+      <input type="text" id="prompt-input" placeholder=""/>
+      <button id="build-btn" aria-label="Build">▶</button>
+    </div>
+  </div>
+  <div class="scroll-hint"><span>Watch it build</span><div class="chevron"></div></div>
+</section>
+
+<!-- ═══════════════ LIVE BUILDER ═══════════════ -->
+<section class="builder" id="builder">
+  <div class="container">
+    <div class="section-header">
+      <div class="badge">⚡ Real-Time Simulation</div>
+      <h2>Watch the <span class="glow-text">Magic</span> Happen</h2>
+      <p>Every channel, role, and permission — created by AI agents executing 22 MCP tools in sequence.</p>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap">
+        <button class="btn btn-secondary" data-scenario="gaming" style="padding:10px 20px;font-size:.85rem">🎮 Gaming Server</button>
+        <button class="btn btn-secondary" data-scenario="dev" style="padding:10px 20px;font-size:.85rem">💻 Dev Workspace</button>
+      </div>
+    </div>
+    <div class="builder-grid">
+      <!-- Discord Preview -->
+      <div class="discord-frame">
+        <div class="discord-titlebar">
+          <div class="circles"><span></span><span></span><span></span></div>
+          Discord Preview
+        </div>
+        <div class="discord-body">
+          <div class="discord-sidebar">
+            <div class="server-name" id="server-name">⚔️ Loading...</div>
+            <div id="discord-sidebar-content"></div>
+          </div>
+          <div class="discord-main" id="discord-chat"></div>
+        </div>
+      </div>
+      <!-- Terminal -->
+      <div class="terminal-frame">
+        <div class="terminal-titlebar">
+          <div class="circles"><span></span><span></span><span></span></div>
+          guildforge — mcp-executor
+        </div>
+        <div class="terminal-body" id="terminal-body">
+          <div class="line"><span class="ts">[--:--:--]</span> <span class="info">Waiting for build command...</span></div>
+          <span class="cursor"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ STATS ═══════════════ -->
+<section class="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="number glow-text counter" data-target="22">0</div><div class="label">MCP Tools</div></div>
+      <div class="stat-card"><div class="number glow-text counter" data-target="6">0</div><div class="label">AI Providers</div></div>
+      <div class="stat-card"><div class="number glow-text counter" data-target="91">0</div><div class="label">Tests Passing</div></div>
+      <div class="stat-card"><div class="number glow-text counter" data-target="60" data-suffix="s">0</div><div class="label">Avg Deploy Time</div></div>
+      <div class="stat-card"><div class="number glow-text counter" data-target="0">0</div><div class="label">CVEs (HIGH)</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ ARCHITECTURE ═══════════════ -->
+<section id="architecture">
+  <div class="container">
+    <div class="section-header">
+      <div class="badge">🏗️ Architecture</div>
+      <h2>Built for <span class="glow-text">Scale</span></h2>
+      <p>Enterprise-grade monorepo with separated concerns and type-safe communication between layers.</p>
+    </div>
+    <div class="arch-diagram">
+      <div class="arch-layer" style="transition-delay:0s"><div class="icon" style="background:rgba(139,92,246,.15);color:var(--purple)">🌐</div><div class="info"><h3>Next.js Frontend</h3><p>React 19 · Server Components · OAuth flow · Real-time SSE streaming</p></div><div class="tech"><span>React 19</span><span>Next.js 15</span><span>TypeScript</span></div></div>
+      <div class="arch-connector"></div>
+      <div class="arch-layer" style="transition-delay:.15s"><div class="icon" style="background:rgba(34,211,238,.15);color:var(--cyan)">⚡</div><div class="info"><h3>Hono API Server</h3><p>Type-safe routes · JWT sessions · Zod validation · Prometheus metrics</p></div><div class="tech"><span>Hono</span><span>Prisma</span><span>Zod</span></div></div>
+      <div class="arch-connector"></div>
+      <div class="arch-layer" style="transition-delay:.3s"><div class="icon" style="background:rgba(16,185,129,.15);color:var(--emerald)">🤖</div><div class="info"><h3>Agent Orchestrator</h3><p>Multi-provider LLM routing · Plan generation · Iterative refinement loop</p></div><div class="tech"><span>GPT-4o</span><span>Claude</span><span>Gemini</span></div></div>
+      <div class="arch-connector"></div>
+      <div class="arch-layer" style="transition-delay:.45s"><div class="icon" style="background:rgba(236,72,153,.15);color:var(--pink)">🔧</div><div class="info"><h3>MCP Discord Server</h3><p>22 tools · Rate limiting · Snapshot/restore · Permission management</p></div><div class="tech"><span>discord.js</span><span>MCP SDK</span><span>stdio</span></div></div>
+      <div class="arch-connector"></div>
+      <div class="arch-layer" style="transition-delay:.6s"><div class="icon" style="background:rgba(99,102,241,.15);color:var(--indigo)">🗄️</div><div class="info"><h3>PostgreSQL + Prisma</h3><p>User sessions · Conversation history · Plan versioning · Analytics</p></div><div class="tech"><span>PostgreSQL</span><span>Prisma ORM</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FEATURES ═══════════════ -->
+<section id="features">
+  <div class="container">
+    <div class="section-header">
+      <div class="badge">✨ Features</div>
+      <h2>Everything You <span class="glow-text">Need</span></h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card"><div class="emoji">🧠</div><h3>Multi-Provider AI</h3><p>GPT-4o, Claude 3.5, Gemini Pro, Groq, Mistral, xAI — hot-swap between 6 providers with a single click.</p></div>
+      <div class="feature-card"><div class="emoji">📸</div><h3>Snapshot & Restore</h3><p>Take full snapshots before any changes. Detect drift. One-click rollback to any previous state.</p></div>
+      <div class="feature-card"><div class="emoji">🛡️</div><h3>Permission Engine</h3><p>Fine-grained Discord permission management with role hierarchies, overwrites, and conflict detection.</p></div>
+      <div class="feature-card"><div class="emoji">🔄</div><h3>Iterative Refinement</h3><p>"Add more voice channels" — modify your plan conversationally. The AI patches the diff, not the whole plan.</p></div>
+      <div class="feature-card"><div class="emoji">📊</div><h3>Built-in Observability</h3><p>Structured JSON logging, Prometheus /metrics endpoint, health checks — production-ready out of the box.</p></div>
+      <div class="feature-card"><div class="emoji">⚡</div><h3>Rate-Limited Execution</h3><p>Intelligent queue respects Discord API limits. No 429s. Automatic retry with exponential backoff.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ CTA ═══════════════ -->
+<section class="cta">
+  <div class="container">
+    <h2>Ready to <span class="glow-text">Build</span>?</h2>
+    <p>Open source. Self-hosted. Your data stays yours.</p>
+    <div class="cta-buttons">
+      <a href="https://github.com/MayonaiseLover/GuildForge" class="btn btn-primary">⭐ Star on GitHub</a>
+      <a href="https://github.com/MayonaiseLover/GuildForge#-quick-start" class="btn btn-secondary">📖 Documentation</a>
+    </div>
+  </div>
+</section>
+
+<footer><div class="container">Built with 🔥 by <a href="https://github.com/MayonaiseLover">MayonaiseLover</a> · MIT License · Powered by AI</div></footer>
+
+<script src="app.js"></script>
+</body>
+</html>
