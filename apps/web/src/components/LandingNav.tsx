@@ -9,7 +9,7 @@ const NAV_LINKS = [
   { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
   { href: "/templates", label: "Templates" },
-  { href: "https://github.com/guildforge/guildforge", label: "Self-Host", external: true },
+  { href: "https://github.com/MayonaiseLover/GuildForge", label: "Self-Host", external: true },
 ];
 
 export function LandingNav() {

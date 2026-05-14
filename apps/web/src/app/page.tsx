@@ -28,7 +28,7 @@ export default function Home() {
               Start Building Free
             </Button>
           </Link>
-          <a href="https://github.com/guildforge/guildforge" target="_blank" rel="noreferrer">
+          <a href="https://github.com/MayonaiseLover/GuildForge" target="_blank" rel="noreferrer">
             <Button size="lg" variant="outline" className="h-14 px-8 text-lg font-semibold rounded-xl border-slate-700 hover:bg-slate-800 text-slate-300">
               ⭐ View on GitHub
             </Button>
@@ -207,7 +207,7 @@ export default function Home() {
           <h2 className="text-4xl font-bold mb-6">Own your infrastructure</h2>
           <p className="text-xl text-slate-400 mb-10">GuildForge is open-source. Self-host it or plug our MCP server into your existing AI workflows.</p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="https://github.com/guildforge/guildforge" target="_blank" rel="noreferrer">
+            <a href="https://github.com/MayonaiseLover/GuildForge" target="_blank" rel="noreferrer">
               <Button size="lg" className="bg-white text-slate-900 hover:bg-slate-200 font-bold px-8">View on GitHub</Button>
             </a>
             <a href="https://www.npmjs.com/package/@guildforge/mcp-discord" target="_blank" rel="noreferrer">
@@ -245,7 +245,7 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-6 text-sm text-slate-400">
             <a href="https://discord.gg/fY7vqVk2bd" className="hover:text-white transition-colors">Discord (Built by GF ⚡)</a>
-            <a href="https://github.com/guildforge/guildforge" className="hover:text-white transition-colors">GitHub</a>
+            <a href="https://github.com/MayonaiseLover/GuildForge" className="hover:text-white transition-colors">GitHub</a>
             <a href="https://www.npmjs.com/package/@guildforge/mcp-discord" className="hover:text-white transition-colors">NPM</a>
             <a href="/docs/getting-started" className="hover:text-white transition-colors">Getting Started</a>
           </div>
