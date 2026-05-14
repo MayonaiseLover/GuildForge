@@ -242,6 +242,33 @@ pnpm dev
 
 Open **[localhost:3000](http://localhost:3000)** — the dashboard is ready.
 
+### Discord App Setup
+
+Before login will work, you need to configure your Discord application:
+
+1. Go to the **[Discord Developer Portal](https://discord.com/developers/applications)**
+2. Click your application (or create one)
+3. **OAuth2 → Redirects** — add your callback URL:
+   ```
+   http://localhost:3001/auth/discord/callback
+   ```
+   > For production, replace with your actual API domain: `https://api.yourdomain.com/auth/discord/callback`
+4. **Bot → Privileged Gateway Intents** — enable **Server Members Intent**
+5. Copy these values into your `.env`:
+   - `DISCORD_CLIENT_ID` → from **OAuth2 → General → Client ID**
+   - `DISCORD_CLIENT_SECRET` → from **OAuth2 → General → Client Secret** (Reset if needed)
+   - `DISCORD_BOT_TOKEN` → from **Bot → Token** (Reset if needed)
+
+### Generate SESSION_SECRET
+
+The API encrypts OAuth tokens with AES-256-GCM. Generate a secret:
+
+```bash
+openssl rand -base64 32
+```
+
+Paste the output as `SESSION_SECRET` in your `.env`. This is **required** — the API will refuse to start without it.
+
 ### Environment Variables
 
 | Variable | Required | Description |
