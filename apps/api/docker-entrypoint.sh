@@ -5,4 +5,4 @@ echo "⚙️  Running database migrations..."
 cd /app && npx prisma migrate deploy --schema=prisma/schema.prisma
 
 echo "🚀 Starting API server..."
-cd /app/apps/api && node dist/index.js
+cd /app/apps/api && npx tsx src/index.ts

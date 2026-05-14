@@ -19,20 +19,22 @@ COPY apps/api/ apps/api/
 RUN pnpm --filter @guildforge/plan-schema build
 RUN pnpm --filter @guildforge/shared-types build 2>/dev/null || true
 RUN cd apps/api && npx prisma generate --schema=../../prisma/schema.prisma
-RUN pnpm --filter @guildforge/api build
 
 # ── Production ────────────────────────────────────────────────────────────────
+# Use tsx at runtime — tsc doesn't add .js extensions for ESM resolution.
+# tsx handles TypeScript + ESM natively with near-zero overhead.
 FROM base AS runner
 ENV NODE_ENV=production
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/apps/api/node_modules ./apps/api/node_modules
-COPY --from=build /app/apps/api/dist ./apps/api/dist
+COPY --from=build /app/apps/api/src ./apps/api/src
 COPY --from=build /app/apps/api/package.json ./apps/api/
+COPY --from=build /app/apps/api/tsconfig.json ./apps/api/
 COPY --from=build /app/packages ./packages
 COPY --from=build /app/prisma ./prisma
 COPY --from=build /app/package.json ./
+COPY --from=build /app/tsconfig.base.json ./
 
-# Entrypoint: migrate then start
 COPY apps/api/docker-entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
