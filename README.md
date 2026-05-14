@@ -211,6 +211,16 @@ npx @guildforge/mcp-discord
 
 ### Install & Run
 
+**Option A — Docker (recommended)**
+
+```bash
+git clone https://github.com/MayonaiseLover/GuildForge.git && cd GuildForge
+cp .env.example .env        # Fill in Discord + LLM keys
+docker compose up --build    # Postgres + API + Web — done
+```
+
+**Option B — Local Development**
+
 ```bash
 # 1. Clone
 git clone https://github.com/MayonaiseLover/GuildForge.git && cd GuildForge
@@ -223,7 +233,7 @@ cp .env.example .env
 # Fill in your Discord + AI provider credentials
 
 # 4. Database
-docker compose up -d db
+docker compose up -d postgres   # or use your own Postgres
 npx prisma migrate deploy
 
 # 5. Launch

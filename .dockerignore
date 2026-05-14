@@ -1,17 +1,30 @@
+# Dependency caches
 node_modules
+**/node_modules
+**/.next
+**/dist
+
+# Git & IDE
 .git
-.turbo
-.next
-.husky
-.researches
-.env*
+.gitignore
+.vscode
+.idea
+
+# Docs & CI
+docs/
+.github/
 *.md
-assets
-docs
-coverage
-*.log
-lint-errors.txt
-lint.txt
-typecheck.log
-fix-imports.js
-test-output.txt
+LICENSE
+
+# Environment (secrets injected at runtime)
+.env
+.env.local
+.env.*.local
+
+# Test artifacts
+coverage/
+**/*.test.ts
+**/*.spec.ts
+**/tests/
+**/e2e/
+playwright-report/

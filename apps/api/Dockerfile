@@ -1,55 +1,40 @@
-FROM node:20-alpine AS base
+FROM node:22-slim AS base
+RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 RUN corepack enable && corepack prepare pnpm@latest --activate
-
-# ── Dependencies ──────────────────────────────────────────────────────────────
-FROM base AS deps
 WORKDIR /app
 
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY packages/ ./packages/
-COPY apps/api/package.json ./apps/api/
-COPY apps/mcp-discord/package.json ./apps/mcp-discord/
-COPY prisma/ ./prisma/
-
-RUN pnpm install --frozen-lockfile --filter @guildforge/api... --filter @guildforge/plan-schema
+# ── Install dependencies ──────────────────────────────────────────────────────
+FROM base AS deps
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY apps/api/package.json apps/api/
+COPY packages/ packages/
+RUN pnpm install --frozen-lockfile --filter @guildforge/api...
 
 # ── Build ─────────────────────────────────────────────────────────────────────
-FROM deps AS builder
-WORKDIR /app
-
+FROM deps AS build
 COPY tsconfig.base.json ./
-COPY apps/api/ ./apps/api/
-COPY apps/mcp-discord/ ./apps/mcp-discord/
-COPY packages/ ./packages/
+COPY prisma/ prisma/
+COPY packages/ packages/
+COPY apps/api/ apps/api/
+RUN pnpm --filter @guildforge/plan-schema build
+RUN pnpm --filter @guildforge/shared-types build 2>/dev/null || true
+RUN cd apps/api && npx prisma generate
+RUN pnpm --filter @guildforge/api build
 
-# Generate Prisma client and compile TypeScript
-RUN cd apps/api && pnpm exec prisma generate && pnpm build
-
-# ── Runtime ───────────────────────────────────────────────────────────────────
-FROM node:20-alpine AS runner
-WORKDIR /app
-
+# ── Production ────────────────────────────────────────────────────────────────
+FROM base AS runner
 ENV NODE_ENV=production
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/apps/api/node_modules ./apps/api/node_modules
+COPY --from=build /app/apps/api/dist ./apps/api/dist
+COPY --from=build /app/apps/api/package.json ./apps/api/
+COPY --from=build /app/packages ./packages
+COPY --from=build /app/prisma ./prisma
+COPY --from=build /app/package.json ./
 
-# Non-root user for security
-RUN addgroup --system --gid 1001 guildforge && \
-    adduser --system --uid 1001 guildforge
-
-# Copy built artifacts and runtime deps
-COPY --from=builder /app/apps/api/dist ./apps/api/dist
-COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/packages ./packages
-
-# Prisma schema needed for migrate at runtime
-COPY prisma/ ./prisma/
-
-# Set ownership
-RUN chown -R guildforge:guildforge /app
-
-USER guildforge
+# Entrypoint: migrate then start
+COPY apps/api/docker-entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 EXPOSE 3001
-
-# Run migrations then start — DATABASE_URL must be provided at runtime
-CMD ["sh", "-c", "npx prisma migrate deploy --schema=/app/prisma/schema.prisma && node apps/api/dist/index.js"]
+ENTRYPOINT ["/entrypoint.sh"]

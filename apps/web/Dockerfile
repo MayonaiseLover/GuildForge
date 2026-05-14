@@ -1,53 +1,34 @@
-# ─── Stage 1: Dependencies ────────────────────────────────────────────────────
-FROM node:20-alpine AS deps
-RUN corepack enable && corepack prepare pnpm@11.0.8 --activate
+FROM node:22-slim AS base
+RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
-COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+# ── Install dependencies ──────────────────────────────────────────────────────
+FROM base AS deps
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/web/package.json apps/web/
-COPY packages/plan-schema/package.json packages/plan-schema/
-COPY packages/shared-types/package.json packages/shared-types/
-COPY packages/ui/package.json packages/ui/
+COPY packages/ packages/
+RUN pnpm install --frozen-lockfile --filter web...
 
-RUN pnpm install --frozen-lockfile --prod=false
-
-# ─── Stage 2: Build ──────────────────────────────────────────────────────────
-FROM node:20-alpine AS builder
-RUN corepack enable && corepack prepare pnpm@11.0.8 --activate
-WORKDIR /app
-
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
-COPY --from=deps /app/packages ./packages
-COPY . .
+# ── Build ─────────────────────────────────────────────────────────────────────
+FROM deps AS build
+COPY tsconfig.base.json ./
+COPY packages/ packages/
+COPY apps/web/ apps/web/
 
 ARG NEXT_PUBLIC_API_URL=http://localhost:3001
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN pnpm --filter @guildforge/web build
+RUN pnpm --filter @guildforge/plan-schema build
+RUN pnpm --filter @guildforge/shared-types build 2>/dev/null || true
+RUN pnpm --filter web build
 
-# ─── Stage 3: Runner ─────────────────────────────────────────────────────────
-FROM node:20-alpine AS runner
-WORKDIR /app
-
+# ── Production ────────────────────────────────────────────────────────────────
+FROM base AS runner
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
-
-COPY --from=builder /app/apps/web/public ./apps/web/public
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next ./apps/web/.next
-COPY --from=builder /app/apps/web/package.json ./apps/web/package.json
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-
-USER nextjs
+COPY --from=build /app/apps/web/.next/standalone ./
+COPY --from=build /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=build /app/apps/web/public ./apps/web/public
 
 EXPOSE 3000
-
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
-CMD ["node_modules/.bin/next", "start", "apps/web"]
+CMD ["node", "apps/web/server.js"]
