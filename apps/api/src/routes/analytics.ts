@@ -134,8 +134,8 @@ export default async function (app: FastifyInstance) {
       operations.map((o: any) => [o.status, o._count.id])
     );
 
-    const totalOps = Object.values(opMap).reduce((a, b) => a + b, 0);
-    const successOps = opMap["OK"] || 0;
+    const totalOps = (Object.values(opMap) as number[]).reduce((a, b) => a + b, 0);
+    const successOps = (opMap["OK"] as number) || 0;
 
     return {
       guildId,
