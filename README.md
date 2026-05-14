@@ -14,6 +14,7 @@
   <img src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Security-Hardened-2ea44f?logo=letsencrypt&logoColor=white" alt="Security" />
   <img src="https://img.shields.io/badge/CVE-0%20HIGH-2ea44f?logo=shield&logoColor=white" alt="CVE" />
+  <a href="https://mayonaiselover.github.io/GuildForge/"><img src="https://img.shields.io/badge/🔥_Live_Demo-Interactive-8b5cf6?style=flat" alt="Live Demo" /></a>
 
   <br /><br />
 
