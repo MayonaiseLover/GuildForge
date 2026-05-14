@@ -224,7 +224,7 @@ ${JSON.stringify(currentPlan.planJson, null, 2)}`;
     try {
       const chatResponse = await provider.chat({
         systemPrompt,
-        messages: history.map(m => ({ role: m.role as "user" | "assistant", content: m.content })),
+        messages: history.map((m: any) => ({ role: m.role as "user" | "assistant", content: m.content })),
         tools: [{
           name: "propose_plan_change",
           description: "Propose an array of structural changes to the current BuildPlan.",

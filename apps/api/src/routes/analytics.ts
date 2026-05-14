@@ -67,7 +67,7 @@ export default async function (app: FastifyInstance) {
       totalSnapshots,
       totalMessages,
       recentEvents,
-      buildsByMonth: buildsByMonth.map(r => ({
+      buildsByMonth: buildsByMonth.map((r: any) => ({
         month: r.month,
         count: Number(r.count)
       }))
@@ -127,11 +127,11 @@ export default async function (app: FastifyInstance) {
     ]);
 
     const statusMap = Object.fromEntries(
-      buildsByStatus.map(s => [s.status, s._count.id])
+      buildsByStatus.map((s: any) => [s.status, s._count.id])
     );
 
     const opMap = Object.fromEntries(
-      operations.map(o => [o.status, o._count.id])
+      operations.map((o: any) => [o.status, o._count.id])
     );
 
     const totalOps = Object.values(opMap).reduce((a, b) => a + b, 0);
@@ -145,7 +145,7 @@ export default async function (app: FastifyInstance) {
       lastBuildAt: lastBuild?.executedAt ?? null,
       snapshotCount,
       operationSuccessRate: totalOps > 0 ? Math.round((successOps / totalOps) * 100) : 0,
-      recentBuilds: recentBuilds.map(b => ({
+      recentBuilds: recentBuilds.map((b: any) => ({
         id: b.id,
         status: b.status,
         createdAt: b.createdAt,

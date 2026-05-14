@@ -21,7 +21,7 @@ const teamsRoutes: FastifyPluginAsync = async (app) => {
       orderBy: { joinedAt: "desc" },
     });
 
-    return memberships.map((m) => ({
+    return memberships.map((m: any) => ({
       ...m.team,
       memberCount: m.team._count.members,
       guildCount: m.team._count.guilds,

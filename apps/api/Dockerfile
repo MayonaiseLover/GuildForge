@@ -18,7 +18,7 @@ COPY packages/ packages/
 COPY apps/api/ apps/api/
 RUN pnpm --filter @guildforge/plan-schema build
 RUN pnpm --filter @guildforge/shared-types build 2>/dev/null || true
-RUN cd apps/api && npx prisma generate
+RUN cd apps/api && npx prisma generate --schema=../../prisma/schema.prisma
 RUN pnpm --filter @guildforge/api build
 
 # ── Production ────────────────────────────────────────────────────────────────

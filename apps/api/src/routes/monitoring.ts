@@ -326,7 +326,7 @@ const monitoringRoutes: FastifyPluginAsync = async (app) => {
       });
 
       const uptime = checks.length > 0
-        ? (checks.filter((c) => c.status === "HEALTHY").length / checks.length) * 100
+        ? (checks.filter((c: any) => c.status === "HEALTHY").length / checks.length) * 100
         : 100;
 
       return {
